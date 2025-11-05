@@ -18,6 +18,10 @@ import styles from "./ContractActions.module.scss";
 const CONTRACT_ADDRESS = (process.env.NEXT_PUBLIC_CONTRACT_ADDRESS ||
   "0x857bd5b87658dc4976a4f515fb78d06192f5e9b5") as `0x${string}`;
 
+const COLLATERAL_TOKEN_ADDRESS = (process.env
+  .NEXT_PUBLIC_COLLAT_TOKEN_ADDRESS ||
+  "0x1c7d4b196cb0c7b01d743fbc6116a902379c7238") as `0x${string}`;
+
 const EMPTY_CODE_VALUES = new Set(["0x", "0x0", ""]);
 
 function getInjectedProvider(): Eip1193Provider | undefined {
@@ -131,7 +135,7 @@ export default function ContractActions() {
   // Read collateral token balance
   const { data: collateralBalanceData, refetch: refetchCollateralBalance } =
     useReadContract({
-      address: collateralAddress as `0x${string}`,
+      address: COLLATERAL_TOKEN_ADDRESS,
       abi: [
         {
           name: "balanceOf",
@@ -144,7 +148,7 @@ export default function ContractActions() {
       functionName: "balanceOf",
       args: address ? [address as `0x${string}`] : undefined,
       query: {
-        enabled: !!address && !!collateralAddress,
+        enabled: !!address,
       },
     });
 
@@ -292,7 +296,7 @@ export default function ContractActions() {
 
   // Read collateral allowance
   const { data: allowanceData, refetch: refetchAllowance } = useReadContract({
-    address: collateralAddress as `0x${string}`,
+    address: COLLATERAL_TOKEN_ADDRESS,
     abi: [
       {
         name: "allowance",
@@ -306,12 +310,9 @@ export default function ContractActions() {
       },
     ] as const,
     functionName: "allowance",
-    args:
-      address && collateralAddress
-        ? [address as `0x${string}`, CONTRACT_ADDRESS]
-        : undefined,
+    args: address ? [address as `0x${string}`, CONTRACT_ADDRESS] : undefined,
     query: {
-      enabled: !!address && !!collateralAddress,
+      enabled: !!address,
     },
   });
 
@@ -328,8 +329,8 @@ export default function ContractActions() {
   }, [currentAllowance, requiredCollateral]);
 
   async function handleApprove() {
-    if (!requiredCollateral || !collateralAddress) {
-      console.error("Missing data:", { requiredCollateral, collateralAddress });
+    if (!requiredCollateral) {
+      console.error("Missing data:", { requiredCollateral });
       return;
     }
 
@@ -347,7 +348,7 @@ export default function ContractActions() {
       formatUnits(requiredCollateral, 6),
       "USDC"
     );
-    console.log("Collateral address:", collateralAddress);
+    console.log("Collateral address:", COLLATERAL_TOKEN_ADDRESS);
     console.log("Contract address:", CONTRACT_ADDRESS);
     console.log("User address:", address);
     console.log("Wallet network:", walletNetwork);
@@ -372,7 +373,7 @@ export default function ContractActions() {
 
       writeContract(
         {
-          address: collateralAddress as `0x${string}`,
+          address: COLLATERAL_TOKEN_ADDRESS,
           abi: [
             {
               name: "approve",
