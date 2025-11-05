@@ -169,31 +169,51 @@ export enum Rarity {
 
 export const RARITY_INFO = {
   [Rarity.BRONZE]: {
-    name: "Bronze Reserve",
+    name: "Bronze Vault Certificate",
     price: "0.000222",
     color: "#CD7F32",
     template: "/nft-templates/bronze-reserve.svg",
-    description: "Entry-level certificate (~1€)"
+    description: "Entry-level vault access (~1€)",
+    goldBacking: "0.0001g",
+    feeDiscount: "0%",
+    stakingBonus: "0%",
+    votingPower: 1,
+    benefits: "Early Supporter badge • Dashboard access • Monthly newsletter"
   },
   [Rarity.SILVER]: {
-    name: "Silver Reserve",
+    name: "Silver Vault Certificate",
     price: "0.000444",
     color: "#C0C0C0",
     template: "/nft-templates/silver-reserve.svg",
-    description: "Mid-tier certificate (~2€)"
+    description: "Enhanced vault member (~2€)",
+    goldBacking: "0.0005g",
+    feeDiscount: "5%",
+    stakingBonus: "0%",
+    votingPower: 5,
+    benefits: "5% fee reduction • Priority access • Quarterly audit reports • Minor governance votes"
   },
   [Rarity.GOLD]: {
-    name: "Gold Reserve",
+    name: "Gold Vault Certificate",
     price: "0.000666",
     color: "#FFD700",
     template: "/nft-templates/gold-reserve.svg",
-    description: "High-tier certificate (~3€)"
+    description: "Premium vault member (~3€)",
+    goldBacking: "0.001g",
+    feeDiscount: "15%",
+    stakingBonus: "10%",
+    votingPower: 10,
+    benefits: "15% fee reduction • +10% staking rewards • Gold Council access • Major governance votes • Annual audit certificate"
   },
   [Rarity.DIAMOND]: {
-    name: "Diamond Reserve",
+    name: "Diamond Vault Certificate",
     price: "0.001111",
     color: "#B9F2FF",
     template: "/nft-templates/diamond-reserve.svg",
-    description: "Elite certificate (~5€)"
+    description: "Elite vault member (~5€)",
+    goldBacking: "0.002g",
+    feeDiscount: "100%",
+    stakingBonus: "25%",
+    votingPower: 30,
+    benefits: "FREE fees forever • +25% staking rewards • x3 voting power • Exclusive airdrops • Real-time audit access • Whitelist priority"
   }
 };
