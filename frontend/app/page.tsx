@@ -9,6 +9,10 @@ const ContractActions = dynamic(() => import('../components/ContractActions'), {
   ssr: false,
 });
 
+const NFTCollection = dynamic(() => import('../components/NFTCollection'), {
+  ssr: false,
+});
+
 export default function Home() {
   return (
     <div className={styles.hero}>
@@ -19,6 +23,9 @@ export default function Home() {
           Connect your wallet and interact with the GoldStable contract: mint GOF tokens with collateral,
           redeem them and monitor your balance. The UI is responsive and secure.
         </p>
+        <p className={styles.lead} style={{ marginTop: "12px", fontSize: "14px", color: "#666" }}>
+          ✨ <strong>New:</strong> Mint exclusive NFT certificates from the Golden Reserves collection using your GOF tokens!
+        </p>
         <div className={styles.linksRow}>
           <ConnectButton />
         </div>
@@ -26,6 +33,9 @@ export default function Home() {
 
       <div className={styles.rightCol}>
         <ContractActions />
+        <div style={{ marginTop: "24px" }}>
+          <NFTCollection />
+        </div>
       </div>
     </div>
   );
