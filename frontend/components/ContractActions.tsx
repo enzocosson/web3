@@ -68,7 +68,10 @@ export default function ContractActions() {
   useEffect(() => {
     if (txHash) {
       console.log("Transaction sent! Hash:", txHash);
-      console.log("View on Etherscan:", `https://sepolia.etherscan.io/tx/${txHash}`);
+      console.log(
+        "View on Etherscan:",
+        `https://sepolia.etherscan.io/tx/${txHash}`
+      );
     }
   }, [txHash]);
 
@@ -126,23 +129,24 @@ export default function ContractActions() {
   });
 
   // Read collateral token balance
-  const { data: collateralBalanceData, refetch: refetchCollateralBalance } = useReadContract({
-    address: collateralAddress as `0x${string}`,
-    abi: [
-      {
-        name: "balanceOf",
-        type: "function",
-        stateMutability: "view",
-        inputs: [{ name: "account", type: "address" }],
-        outputs: [{ name: "", type: "uint256" }],
+  const { data: collateralBalanceData, refetch: refetchCollateralBalance } =
+    useReadContract({
+      address: collateralAddress as `0x${string}`,
+      abi: [
+        {
+          name: "balanceOf",
+          type: "function",
+          stateMutability: "view",
+          inputs: [{ name: "account", type: "address" }],
+          outputs: [{ name: "", type: "uint256" }],
+        },
+      ] as const,
+      functionName: "balanceOf",
+      args: address ? [address as `0x${string}`] : undefined,
+      query: {
+        enabled: !!address && !!collateralAddress,
       },
-    ] as const,
-    functionName: "balanceOf",
-    args: address ? [address as `0x${string}`] : undefined,
-    query: {
-      enabled: !!address && !!collateralAddress,
-    },
-  });
+    });
 
   const collateralBalance = useMemo(() => {
     if (collateralBalanceData !== undefined) {
@@ -328,13 +332,21 @@ export default function ContractActions() {
       console.error("Missing data:", { requiredCollateral, collateralAddress });
       return;
     }
-    
+
     setError(null);
     setIsApproving(true);
 
     console.log("=== APPROVE DEBUG ===");
-    console.log("Collateral balance:", formatUnits(collateralBalance, 6), "USDC");
-    console.log("Required collateral:", formatUnits(requiredCollateral, 6), "USDC");
+    console.log(
+      "Collateral balance:",
+      formatUnits(collateralBalance, 6),
+      "USDC"
+    );
+    console.log(
+      "Required collateral:",
+      formatUnits(requiredCollateral, 6),
+      "USDC"
+    );
     console.log("Collateral address:", collateralAddress);
     console.log("Contract address:", CONTRACT_ADDRESS);
     console.log("User address:", address);
@@ -343,7 +355,13 @@ export default function ContractActions() {
     // Vérifier que l'utilisateur a assez de collateral
     if (collateralBalance < requiredCollateral) {
       setError(
-        `Insufficient collateral balance. You need ${formatUnits(requiredCollateral, 6)} USDC but only have ${formatUnits(collateralBalance, 6)} USDC. Get test USDC from https://faucet.circle.com/`
+        `Insufficient collateral balance. You need ${formatUnits(
+          requiredCollateral,
+          6
+        )} USDC but only have ${formatUnits(
+          collateralBalance,
+          6
+        )} USDC. Get test USDC from https://faucet.circle.com/`
       );
       setIsApproving(false);
       return;
@@ -410,7 +428,7 @@ export default function ContractActions() {
     console.log("Needs Approval:", needsApproval);
     console.log("Wallet Network:", walletNetwork);
     console.log("Contract Address:", CONTRACT_ADDRESS);
-    
+
     if (!isConnected || !address) {
       setError("Please connect your wallet first.");
       return;
@@ -426,7 +444,7 @@ export default function ContractActions() {
     }
 
     console.log("Calling writeContract for mint...");
-    
+
     writeContract(
       {
         address: CONTRACT_ADDRESS,
@@ -499,40 +517,113 @@ export default function ContractActions() {
   return (
     <div className={styles.card}>
       <h3 className={styles.title}>Contract actions</h3>
-      
+
       {/* Diagnostic Panel */}
-      <details style={{ marginBottom: "16px", padding: "12px", background: "#f5f5f5", borderRadius: "4px" }}>
+      <details
+        style={{
+          marginBottom: "16px",
+          padding: "12px",
+          background: "#f5f5f5",
+          borderRadius: "4px",
+        }}
+      >
         <summary style={{ cursor: "pointer", fontWeight: "bold" }}>
           🔍 Debug Information (click to expand)
         </summary>
-        <div style={{ marginTop: "12px", fontSize: "12px", fontFamily: "monospace" }}>
-          <div><strong>Connected:</strong> {isConnected ? "Yes" : "No"}</div>
-          <div><strong>Address:</strong> {address || "Not connected"}</div>
-          <div><strong>Wallet Network:</strong> {walletNetwork ? `${walletNetwork.name} (${walletNetwork.chainId})` : "Not detected"}</div>
-          <div><strong>Expected Network:</strong> Sepolia (11155111)</div>
-          <div style={{ color: walletNetwork?.chainId !== 11155111 ? "red" : "green" }}>
-            <strong>Network Match:</strong> {walletNetwork?.chainId === 11155111 ? "✅ Correct" : "❌ WRONG NETWORK!"}
+        <div
+          style={{
+            marginTop: "12px",
+            fontSize: "12px",
+            fontFamily: "monospace",
+          }}
+        >
+          <div>
+            <strong>Connected:</strong> {isConnected ? "Yes" : "No"}
+          </div>
+          <div>
+            <strong>Address:</strong> {address || "Not connected"}
+          </div>
+          <div>
+            <strong>Wallet Network:</strong>{" "}
+            {walletNetwork
+              ? `${walletNetwork.name} (${walletNetwork.chainId})`
+              : "Not detected"}
+          </div>
+          <div>
+            <strong>Expected Network:</strong> Sepolia (11155111)
+          </div>
+          <div
+            style={{
+              color: walletNetwork?.chainId !== 11155111 ? "red" : "green",
+            }}
+          >
+            <strong>Network Match:</strong>{" "}
+            {walletNetwork?.chainId === 11155111
+              ? "✅ Correct"
+              : "❌ WRONG NETWORK!"}
           </div>
           <hr style={{ margin: "8px 0" }} />
-          <div><strong>GOF Contract:</strong> {CONTRACT_ADDRESS}</div>
-          <div><strong>Collateral Token:</strong> {collateralAddress as string || "Loading..."}</div>
-          <div><strong>Has Contract Code:</strong> {hasContract === true ? "✅ Yes" : hasContract === false ? "❌ No" : "⏳ Checking..."}</div>
+          <div>
+            <strong>GOF Contract:</strong> {CONTRACT_ADDRESS}
+          </div>
+          <div>
+            <strong>Collateral Token:</strong>{" "}
+            {(collateralAddress as string) || "Loading..."}
+          </div>
+          <div>
+            <strong>Has Contract Code:</strong>{" "}
+            {hasContract === true
+              ? "✅ Yes"
+              : hasContract === false
+              ? "❌ No"
+              : "⏳ Checking..."}
+          </div>
           <hr style={{ margin: "8px 0" }} />
-          <div><strong>GOF Balance (raw):</strong> {contractBalance?.toString() || "null"}</div>
-          <div><strong>GOF Balance (formatted):</strong> {balanceFormatted}</div>
-          <div><strong>USDC Balance (raw):</strong> {collateralBalanceData?.toString() || "null"}</div>
-          <div><strong>USDC Balance (formatted):</strong> {formatUnits(collateralBalance, 6)} USDC</div>
-          <div><strong>Required Collateral:</strong> {requiredCollateral ? formatUnits(requiredCollateral, 6) + " USDC" : "Enter amount first"}</div>
-          <div><strong>Current Allowance:</strong> {formatUnits(currentAllowance, 6)} USDC</div>
+          <div>
+            <strong>GOF Balance (raw):</strong>{" "}
+            {contractBalance?.toString() || "null"}
+          </div>
+          <div>
+            <strong>GOF Balance (formatted):</strong> {balanceFormatted}
+          </div>
+          <div>
+            <strong>USDC Balance (raw):</strong>{" "}
+            {collateralBalanceData?.toString() || "null"}
+          </div>
+          <div>
+            <strong>USDC Balance (formatted):</strong>{" "}
+            {formatUnits(collateralBalance, 6)} USDC
+          </div>
+          <div>
+            <strong>Required Collateral:</strong>{" "}
+            {requiredCollateral
+              ? formatUnits(requiredCollateral, 6) + " USDC"
+              : "Enter amount first"}
+          </div>
+          <div>
+            <strong>Current Allowance:</strong>{" "}
+            {formatUnits(currentAllowance, 6)} USDC
+          </div>
           <div style={{ color: needsApproval ? "orange" : "green" }}>
-            <strong>Needs Approval:</strong> {needsApproval ? "⚠️ Yes - Click Step 1" : "✅ No - Ready to mint"}
+            <strong>Needs Approval:</strong>{" "}
+            {needsApproval ? "⚠️ Yes - Click Step 1" : "✅ No - Ready to mint"}
           </div>
           <hr style={{ margin: "8px 0" }} />
-          <div><strong>Parsed Amount:</strong> {parsedAmount?.toString() || "None"}</div>
-          <div><strong>Input Decimals:</strong> {decimals}</div>
-          <div><strong>Is Pending:</strong> {isWritePending ? "Yes" : "No"}</div>
-          <div><strong>Is Confirming:</strong> {isConfirming ? "Yes" : "No"}</div>
-          <div><strong>Last TX Hash:</strong> {txHash || "None"}</div>
+          <div>
+            <strong>Parsed Amount:</strong> {parsedAmount?.toString() || "None"}
+          </div>
+          <div>
+            <strong>Input Decimals:</strong> {decimals}
+          </div>
+          <div>
+            <strong>Is Pending:</strong> {isWritePending ? "Yes" : "No"}
+          </div>
+          <div>
+            <strong>Is Confirming:</strong> {isConfirming ? "Yes" : "No"}
+          </div>
+          <div>
+            <strong>Last TX Hash:</strong> {txHash || "None"}
+          </div>
           <hr style={{ margin: "8px 0" }} />
           <div style={{ marginTop: "8px" }}>
             <strong>⚠️ Balance showing 0 but you have tokens?</strong>
@@ -540,33 +631,53 @@ export default function ContractActions() {
               <li>Click the 🔄 Refresh buttons above</li>
               <li>Check you&apos;re on the right network (Sepolia)</li>
               <li>Verify the contract address matches your deployment</li>
-              <li>Check on <a href={`https://sepolia.etherscan.io/address/${address}`} target="_blank" rel="noopener noreferrer" style={{ color: "#0070f3" }}>Etherscan</a> to confirm your actual balance</li>
+              <li>
+                Check on{" "}
+                <a
+                  href={`https://sepolia.etherscan.io/address/${address}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{ color: "#0070f3" }}
+                >
+                  Etherscan
+                </a>{" "}
+                to confirm your actual balance
+              </li>
             </ul>
           </div>
         </div>
       </details>
 
       <p className={styles.meta}>
-        GOF Contract: <code className="break-all">{CONTRACT_ADDRESS}</code>
-        {" "}
+        GOF Contract: <code className="break-all">{CONTRACT_ADDRESS}</code>{" "}
         <a
           href={`https://sepolia.etherscan.io/address/${CONTRACT_ADDRESS}`}
           target="_blank"
           rel="noopener noreferrer"
-          style={{ color: "#0070f3", textDecoration: "underline", fontSize: "12px" }}
+          style={{
+            color: "#0070f3",
+            textDecoration: "underline",
+            fontSize: "12px",
+          }}
         >
           View on Etherscan
         </a>
       </p>
       {collateralAddress && (
         <p className={styles.meta}>
-          Collateral Token: <code className="break-all">{collateralAddress as string}</code>
-          {" "}
+          Collateral Token:{" "}
+          <code className="break-all">{collateralAddress as string}</code>{" "}
           <a
-            href={`https://sepolia.etherscan.io/address/${collateralAddress as string}`}
+            href={`https://sepolia.etherscan.io/address/${
+              collateralAddress as string
+            }`}
             target="_blank"
             rel="noopener noreferrer"
-            style={{ color: "#0070f3", textDecoration: "underline", fontSize: "12px" }}
+            style={{
+              color: "#0070f3",
+              textDecoration: "underline",
+              fontSize: "12px",
+            }}
           >
             View on Etherscan
           </a>
@@ -574,13 +685,16 @@ export default function ContractActions() {
       )}
       {address && (
         <p className={styles.meta}>
-          Your Wallet: <code className="break-all">{address}</code>
-          {" "}
+          Your Wallet: <code className="break-all">{address}</code>{" "}
           <a
             href={`https://sepolia.etherscan.io/address/${address}`}
             target="_blank"
             rel="noopener noreferrer"
-            style={{ color: "#0070f3", textDecoration: "underline", fontSize: "12px" }}
+            style={{
+              color: "#0070f3",
+              textDecoration: "underline",
+              fontSize: "12px",
+            }}
           >
             View on Etherscan
           </a>
@@ -620,7 +734,9 @@ export default function ContractActions() {
           <div>Connected: {isConnected ? address : "not connected"}</div>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <span>GOF Balance: <strong>{balanceFormatted}</strong></span>
+          <span>
+            GOF Balance: <strong>{balanceFormatted}</strong>
+          </span>
           <button
             onClick={() => {
               console.log("Refreshing GOF balance...");
@@ -632,7 +748,7 @@ export default function ContractActions() {
               cursor: "pointer",
               borderRadius: "4px",
               border: "1px solid #ccc",
-              background: "#fff"
+              background: "#fff",
             }}
           >
             🔄 Refresh
@@ -640,7 +756,10 @@ export default function ContractActions() {
         </div>
         {collateralAddress && (
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <span>Collateral Balance: <strong>{formatUnits(collateralBalance, 6)} USDC</strong></span>
+            <span>
+              Collateral Balance:{" "}
+              <strong>{formatUnits(collateralBalance, 6)} USDC</strong>
+            </span>
             <button
               onClick={() => {
                 console.log("Refreshing USDC balance...");
@@ -652,7 +771,7 @@ export default function ContractActions() {
                 cursor: "pointer",
                 borderRadius: "4px",
                 border: "1px solid #ccc",
-                background: "#fff"
+                background: "#fff",
               }}
             >
               🔄 Refresh
@@ -684,7 +803,8 @@ export default function ContractActions() {
         />
         {requiredCollateral && (
           <div className={styles.meta} style={{ marginTop: "8px" }}>
-            Required collateral (with fees): {formatUnits(requiredCollateral, 6)} USDC
+            Required collateral (with fees):{" "}
+            {formatUnits(requiredCollateral, 6)} USDC
           </div>
         )}
         {currentAllowance > BigInt(0) && (
@@ -708,22 +828,24 @@ export default function ContractActions() {
               isApproving
             }
             style={{
-              opacity: !isConnected ||
-              !walletClient ||
-              !requiredCollateral ||
-              isWritePending ||
-              isConfirming ||
-              isApproving
-                ? 0.5
-                : 1,
-              cursor: !isConnected ||
-              !walletClient ||
-              !requiredCollateral ||
-              isWritePending ||
-              isConfirming ||
-              isApproving
-                ? "not-allowed"
-                : "pointer",
+              opacity:
+                !isConnected ||
+                !walletClient ||
+                !requiredCollateral ||
+                isWritePending ||
+                isConfirming ||
+                isApproving
+                  ? 0.5
+                  : 1,
+              cursor:
+                !isConnected ||
+                !walletClient ||
+                !requiredCollateral ||
+                isWritePending ||
+                isConfirming ||
+                isApproving
+                  ? "not-allowed"
+                  : "pointer",
             }}
           >
             {isWritePending || isConfirming
@@ -744,22 +866,24 @@ export default function ContractActions() {
             needsApproval
           }
           style={{
-            opacity: !isConnected ||
-            !walletClient ||
-            !parsedAmount ||
-            isWritePending ||
-            isConfirming ||
-            needsApproval
-              ? 0.5
-              : 1,
-            cursor: !isConnected ||
-            !walletClient ||
-            !parsedAmount ||
-            isWritePending ||
-            isConfirming ||
-            needsApproval
-              ? "not-allowed"
-              : "pointer",
+            opacity:
+              !isConnected ||
+              !walletClient ||
+              !parsedAmount ||
+              isWritePending ||
+              isConfirming ||
+              needsApproval
+                ? 0.5
+                : 1,
+            cursor:
+              !isConnected ||
+              !walletClient ||
+              !parsedAmount ||
+              isWritePending ||
+              isConfirming ||
+              needsApproval
+                ? "not-allowed"
+                : "pointer",
             backgroundColor: needsApproval ? "#666" : undefined,
           }}
         >
@@ -781,20 +905,22 @@ export default function ContractActions() {
             isConfirming
           }
           style={{
-            opacity: !isConnected ||
-            !walletClient ||
-            !parsedAmount ||
-            isWritePending ||
-            isConfirming
-              ? 0.5
-              : 1,
-            cursor: !isConnected ||
-            !walletClient ||
-            !parsedAmount ||
-            isWritePending ||
-            isConfirming
-              ? "not-allowed"
-              : "pointer",
+            opacity:
+              !isConnected ||
+              !walletClient ||
+              !parsedAmount ||
+              isWritePending ||
+              isConfirming
+                ? 0.5
+                : 1,
+            cursor:
+              !isConnected ||
+              !walletClient ||
+              !parsedAmount ||
+              isWritePending ||
+              isConfirming
+                ? "not-allowed"
+                : "pointer",
           }}
         >
           {isWritePending || isConfirming ? "⏳ Processing..." : "🔄 Redeem"}
@@ -808,12 +934,20 @@ export default function ContractActions() {
           <div style={{ marginBottom: "8px" }}>
             <strong>Transaction Details:</strong>
           </div>
-          <div style={{ fontSize: "12px", wordBreak: "break-all", marginBottom: "8px" }}>
+          <div
+            style={{
+              fontSize: "12px",
+              wordBreak: "break-all",
+              marginBottom: "8px",
+            }}
+          >
             Hash: {txHash}
           </div>
           <div>
             {isConfirming && <span>⏳ Waiting for confirmation...</span>}
-            {isConfirmed && <span style={{ color: "#00cc00" }}>✅ Confirmed!</span>}
+            {isConfirmed && (
+              <span style={{ color: "#00cc00" }}>✅ Confirmed!</span>
+            )}
           </div>
           <a
             href={`https://sepolia.etherscan.io/tx/${txHash}`}
@@ -824,8 +958,9 @@ export default function ContractActions() {
             View on Etherscan
           </a>
           <div style={{ fontSize: "11px", marginTop: "8px", color: "#666" }}>
-            Note: It may take a few seconds for the transaction to appear on Etherscan.
-            If it doesn&apos;t appear after 30 seconds, the transaction may have been rejected.
+            Note: It may take a few seconds for the transaction to appear on
+            Etherscan. If it doesn&apos;t appear after 30 seconds, the
+            transaction may have been rejected.
           </div>
         </div>
       )}
