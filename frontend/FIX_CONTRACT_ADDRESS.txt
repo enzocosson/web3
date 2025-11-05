@@ -1,0 +1,6 @@
+# Si vos GOF sont dans un contrat différent, exécutez :
+
+# PowerShell
+Set-Content -Path "d:\dev-web\web3\frontend\.env.local" -Value "NEXT_PUBLIC_CONTRACT_ADDRESS=0xVOTRE_VRAIE_ADRESSE"
+
+# Puis rechargez la page web (F5)

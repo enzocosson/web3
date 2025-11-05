@@ -62,6 +62,10 @@ contract GoldStableChainlink is ERC20, Ownable, ReentrancyGuard {
         uint256 requiredCollateral = requiredCollateralForMint(amountGOF);
         uint256 fee = requiredCollateral * mintFeeBps / BPS_DENOM;
         uint256 totalCollateral = requiredCollateral + fee;
+        
+        // Transfer collateral from user to contract
+        require(collateral.transferFrom(msg.sender, address(this), totalCollateral), "collateral transfer failed");
+        
         _mint(msg.sender, amountGOF);
         emit Minted(msg.sender, amountGOF, totalCollateral);
     }
@@ -70,7 +74,12 @@ contract GoldStableChainlink is ERC20, Ownable, ReentrancyGuard {
         uint256 requiredCollateral = requiredCollateralForMint(amountGOF);
         uint256 fee = requiredCollateral * redeemFeeBps / BPS_DENOM;
         uint256 payout = requiredCollateral - fee;
+        
         _burn(msg.sender, amountGOF);
+        
+        // Transfer collateral from contract to user
+        require(collateral.transfer(msg.sender, payout), "collateral payout failed");
+        
         emit Redeemed(msg.sender, amountGOF, payout);
     }
 
