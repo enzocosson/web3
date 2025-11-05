@@ -7,7 +7,7 @@ import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadCont
 import { parseUnits, formatUnits } from "ethers";
 import { GOLDEN_RESERVES_NFT_ABI, Rarity, RARITY_INFO } from "./nftAbi";
 import { ABI as GOF_ABI } from "./abi";
-import styles from "./ContractActions.module.scss";
+import styles from "./NFTCollection.module.scss";
 
 const NFT_CONTRACT_ADDRESS = (process.env.NEXT_PUBLIC_NFT_CONTRACT_ADDRESS || "0x0000000000000000000000000000000000000000") as `0x${string}`;
 const GOF_CONTRACT_ADDRESS = (process.env.NEXT_PUBLIC_CONTRACT_ADDRESS || "0x857bd5b87658dc4976a4f515fb78d06192f5e9b5") as `0x${string}`;
@@ -287,97 +287,97 @@ export default function NFTCollection() {
 
   if (NFT_CONTRACT_ADDRESS === "0x0000000000000000000000000000000000000000") {
     return (
-      <div className={styles.card}>
-        <h3 className={styles.title}>🎨 Golden Reserves NFT Collection</h3>
-        <div className={styles.note} style={{ background: "#fff3cd", borderColor: "#ffc107", color: "#856404" }}>
-          ⚠️ NFT Contract not configured. Please deploy the GoldenReservesNFT contract and update NEXT_PUBLIC_NFT_CONTRACT_ADDRESS in your .env.local file.
+      <div className={styles.nftCard}>
+        <h3 className={styles.nftTitle}>🎨 Golden Reserves NFT Collection</h3>
+        <div className={`${styles.statusBadge} ${styles.warning}`}>
+          ⚠️ NFT Contract not configured
+        </div>
+        <div className={styles.instructions}>
+          <strong>Setup Required:</strong>
+          <ol>
+            <li>Deploy the GoldenReservesNFT contract</li>
+            <li>Update NEXT_PUBLIC_NFT_CONTRACT_ADDRESS in your .env.local file</li>
+          </ol>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={styles.card}>
-      <h3 className={styles.title}>🎨 Golden Reserves NFT Collection</h3>
+    <div className={styles.nftCard}>
+      <h3 className={styles.nftTitle}>🎨 Golden Reserves NFT</h3>
       
-      <p className={styles.meta} style={{ marginBottom: "16px" }}>
-        Mint exclusive reserve certificates by paying with GOF tokens
+      <p className={styles.meta}>
+        Mint exclusive reserve certificates by staking GOF tokens
       </p>
 
       {/* Rarity Selection */}
-      <div className={styles.field}>
-        <label className={styles.meta}>Select Reserve Tier</label>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px", marginTop: "8px" }}>
-          {Object.entries(RARITY_INFO).map(([key, info]) => {
-            const rarityKey = Number(key) as Rarity;
-            return (
-              <div
-                key={key}
-                onClick={() => setSelectedRarity(rarityKey)}
-                style={{
-                  padding: "12px",
-                  border: `2px solid ${selectedRarity === rarityKey ? info.color : "#ddd"}`,
-                  borderRadius: "8px",
-                  cursor: "pointer",
-                  background: selectedRarity === rarityKey ? `${info.color}15` : "#fff",
-                  transition: "all 0.2s",
-                }}
-              >
-                <div style={{ fontWeight: "bold", color: info.color, marginBottom: "4px" }}>
+      <div className={styles.tierGrid}>
+        {Object.entries(RARITY_INFO).map(([key, info]) => {
+          const rarityKey = Number(key) as Rarity;
+          const isSelected = selectedRarity === rarityKey;
+          return (
+            <div
+              key={key}
+              className={`${styles.tierCard} ${isSelected ? styles.selected : ''}`}
+              onClick={() => setSelectedRarity(rarityKey)}
+            >
+              <div className={styles.tierHeader}>
+                <div className={styles.tierName} style={{ color: info.color }}>
                   {info.name}
                 </div>
-                <div style={{ fontSize: "14px", color: "#666" }}>
-                  {info.price} GOF
-                </div>
-                <div style={{ fontSize: "11px", color: "#999", marginTop: "4px" }}>
-                  {info.description}
+                <div className={styles.tierCheckmark} style={{ color: info.color }}>
+                  {isSelected && '✓'}
                 </div>
               </div>
-            );
-          })}
-        </div>
+              <div className={styles.tierPrice} style={{ color: info.color }}>
+                {info.price} GOF
+              </div>
+              <div className={styles.tierDescription}>
+                {info.description}
+              </div>
+            </div>
+          );
+        })}
       </div>
 
       {/* Balance Info */}
-      <div className={styles.field}>
-        <div className={styles.meta}>
-          Your GOF Balance: <strong>{formatUnits(gofBalance, 18)} GOF</strong>
+      <div className={styles.balanceSection}>
+        <div className={styles.balanceRow}>
+          <span className={styles.balanceLabel}>Your GOF Balance</span>
+          <span className={styles.balanceValue}>{formatUnits(gofBalance, 18)} GOF</span>
         </div>
-        <div className={styles.meta}>
-          Required: <strong style={{ color: RARITY_INFO[selectedRarity].color }}>
+        <div className={styles.balanceRow}>
+          <span className={styles.balanceLabel}>Required for {RARITY_INFO[selectedRarity].name}</span>
+          <span className={styles.balanceValue} style={{ color: RARITY_INFO[selectedRarity].color }}>
             {RARITY_INFO[selectedRarity].price} GOF
-          </strong>
+          </span>
         </div>
         {currentAllowance > BigInt(0) && (
-          <div className={styles.meta}>
-            Current Allowance: {formatUnits(currentAllowance, 18)} GOF
+          <div className={styles.balanceRow}>
+            <span className={styles.balanceLabel}>Current Allowance</span>
+            <span className={styles.balanceValue}>{formatUnits(currentAllowance, 18)} GOF</span>
           </div>
         )}
       </div>
 
       {/* Preview */}
       {RARITY_INFO[selectedRarity] && (
-        <div style={{ marginBottom: "16px", textAlign: "center" }}>
-          <div className={styles.meta} style={{ marginBottom: "8px" }}>Preview</div>
+        <div className={styles.previewSection}>
+          <div className={styles.previewLabel}>Certificate Preview</div>
           <Image 
             src={RARITY_INFO[selectedRarity].template} 
             alt={RARITY_INFO[selectedRarity].name}
             width={500}
             height={700}
-            style={{ 
-              maxWidth: "100%", 
-              height: "auto", 
-              maxHeight: "300px",
-              border: `2px solid ${RARITY_INFO[selectedRarity].color}`,
-              borderRadius: "8px",
-            }}
+            className={styles.previewImage}
           />
         </div>
       )}
 
       {ipfsUrl && (
-        <div className={styles.note}>
-          ✅ Uploaded to IPFS
+        <div className={`${styles.statusBadge} ${styles.success}`}>
+          ✅ Certificate uploaded to IPFS successfully!
         </div>
       )}
 
@@ -388,11 +388,8 @@ export default function NFTCollection() {
             className={styles.primary}
             onClick={uploadToIPFS}
             disabled={uploading || !isConnected}
-            style={{
-              opacity: uploading || !isConnected ? 0.5 : 1,
-            }}
           >
-            {uploading ? "⏳ Uploading to IPFS..." : "📤 Upload to IPFS"}
+            {uploading ? "⏳ Uploading..." : "📤 Upload Certificate"}
           </button>
         )}
 
@@ -401,11 +398,8 @@ export default function NFTCollection() {
             className={styles.primary}
             onClick={handleApprove}
             disabled={!isConnected || isPending || isConfirming || isApproving}
-            style={{
-              opacity: !isConnected || isPending || isConfirming || isApproving ? 0.5 : 1,
-            }}
           >
-            {isPending || isConfirming ? "⏳ Approving..." : "1️⃣ Approve GOF"}
+            {isPending || isConfirming ? "⏳ Approving..." : "1️⃣ Approve GOF Tokens"}
           </button>
         ) : null}
 
@@ -413,83 +407,64 @@ export default function NFTCollection() {
           className={styles.primary}
           onClick={mintNFT}
           disabled={!isConnected || !ipfsUrl || needsApproval || isPending || isConfirming}
-          style={{
-            opacity: !isConnected || !ipfsUrl || needsApproval || isPending || isConfirming ? 0.5 : 1,
-            backgroundColor: needsApproval && ipfsUrl ? "#666" : undefined,
-          }}
         >
-          {isPending || isConfirming ? "⏳ Minting..." : needsApproval && ipfsUrl ? "2️⃣ Mint NFT (Approve first)" : "🎨 Mint NFT"}
+          {isPending || isConfirming 
+            ? "⏳ Minting..." 
+            : needsApproval && ipfsUrl 
+            ? "2️⃣ Mint NFT (Approve First)" 
+            : "🎨 Mint Reserve Certificate"}
         </button>
       </div>
 
-      {error && <div className={styles.error}>Error: {error}</div>}
+      {error && <div className={styles.error}>⚠️ {error}</div>}
 
       {txHash && (
         <div className={styles.note}>
-          {isConfirming && <span>⏳ Confirming...</span>}
-          {isConfirmed && <span style={{ color: "#00cc00" }}>✅ NFT Minted!</span>}
+          {isConfirming && <span>⏳ Transaction processing...</span>}
+          {isConfirmed && <span style={{ color: "#28a745", fontWeight: "bold" }}>✅ NFT Certificate Minted Successfully!</span>}
           <br />
           <a
             href={`https://sepolia.etherscan.io/tx/${txHash}`}
             target="_blank"
             rel="noopener noreferrer"
-            style={{ color: "#0070f3" }}
+            className={styles.link}
           >
-            View on Etherscan
+            View Transaction on Etherscan →
           </a>
         </div>
       )}
 
       {/* Owned NFTs */}
       {ownedNFTs.length > 0 && (
-        <div style={{ marginTop: "24px" }}>
-          <h4 className={styles.title} style={{ fontSize: "18px", marginBottom: "12px" }}>
-            Your Collection ({ownedNFTs.length})
-          </h4>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))", gap: "16px" }}>
+        <div className={styles.nftCollection}>
+          <div className={styles.collectionTitle}>
+            Your Collection
+            <span className={styles.collectionCount}>{ownedNFTs.length}</span>
+          </div>
+          <div className={styles.nftGrid}>
             {ownedNFTs.map((nft) => (
-              <div
-                key={nft.tokenId}
-                style={{
-                  padding: "12px",
-                  border: "2px solid #ddd",
-                  borderRadius: "12px",
-                  textAlign: "center",
-                  background: "#fff",
-                }}
-              >
-                <div style={{ fontSize: "14px", fontWeight: "bold", marginBottom: "8px" }}>
-                  NFT #{nft.tokenId}
+              <div key={nft.tokenId} className={styles.nftItem}>
+                <div className={styles.nftId}>Certificate #{nft.tokenId}</div>
+                <div className={styles.nftRarity} style={{ 
+                  background: `${RARITY_INFO[nft.rarity]?.color}15`,
+                  color: RARITY_INFO[nft.rarity]?.color 
+                }}>
+                  {RARITY_INFO[nft.rarity]?.name || "Unknown"}
                 </div>
-                <div style={{ fontSize: "12px", color: "#666", marginBottom: "8px" }}>
-                  {RARITY_INFO[nft.rarity]?.name || "Unknown Rarity"}
-                </div>
-                <div style={{ marginTop: "12px" }}>
+                <div className={styles.nftLinks}>
                   <a
                     href={`https://sepolia.etherscan.io/nft/${NFT_CONTRACT_ADDRESS}/${nft.tokenId}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    style={{
-                      fontSize: "12px",
-                      color: "#0070f3",
-                      textDecoration: "underline",
-                    }}
                   >
-                    View on Etherscan
+                    View on Etherscan →
                   </a>
-                </div>
-                <div style={{ marginTop: "8px" }}>
                   <a
                     href={`https://testnets.opensea.io/assets/sepolia/${NFT_CONTRACT_ADDRESS}/${nft.tokenId}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    style={{
-                      fontSize: "12px",
-                      color: "#2081e2",
-                      textDecoration: "underline",
-                    }}
                   >
-                    View on OpenSea
+                    View on OpenSea →
                   </a>
                 </div>
               </div>
@@ -498,16 +473,14 @@ export default function NFTCollection() {
         </div>
       )}
 
-      <div className={styles.note}>
-        <strong>How it works:</strong>
-        <br />
-        1. Select your desired reserve tier (Bronze, Silver, Gold, or Diamond)
-        <br />
-        2. Upload the certificate design to IPFS
-        <br />
-        3. Approve the NFT contract to spend your GOF tokens
-        <br />
-        4. Mint your NFT certificate by paying with GOF
+      <div className={styles.instructions}>
+        <strong>How to Mint Your Reserve Certificate:</strong>
+        <ol>
+          <li>Select your desired reserve tier (Bronze, Silver, Gold, or Diamond)</li>
+          <li>Upload the certificate design to IPFS (decentralized storage)</li>
+          <li>Approve the NFT contract to spend your GOF tokens</li>
+          <li>Mint your exclusive Reserve Certificate NFT</li>
+        </ol>
       </div>
     </div>
   );

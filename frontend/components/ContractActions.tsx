@@ -501,15 +501,14 @@ export default function ContractActions() {
   if (hasContract === false) {
     return (
       <div className={styles.card}>
-        <h3 className={styles.title}>Contract not found</h3>
-        <p className={styles.meta}>
-          No contract was found at{" "}
-          <code className="break-all">{CONTRACT_ADDRESS}</code> on the
-          configured network.
-        </p>
+        <h3 className={styles.title}>💰 GoldStable Contract</h3>
+        <div className={`${styles.badge} ${styles.error}`}>
+          ⚠️ Contract not found
+        </div>
         <div className={styles.note}>
-          Please verify the contract address and network. Your frontend is
-          currently configured for Sepolia (see `components/config.ts`).
+          <strong>No contract detected</strong>
+          The contract at <code>{CONTRACT_ADDRESS}</code> was not found on the configured network.
+          Please verify the contract address and ensure you&apos;re on the Sepolia testnet.
         </div>
       </div>
     );
@@ -517,462 +516,257 @@ export default function ContractActions() {
 
   return (
     <div className={styles.card}>
-      <h3 className={styles.title}>Contract actions</h3>
-
-      {/* Diagnostic Panel */}
-      <details
-        style={{
-          marginBottom: "16px",
-          padding: "12px",
-          background: "#f5f5f5",
-          borderRadius: "4px",
-        }}
-      >
-        <summary style={{ cursor: "pointer", fontWeight: "bold" }}>
-          🔍 Debug Information (click to expand)
-        </summary>
-        <div
-          style={{
-            marginTop: "12px",
-            fontSize: "12px",
-            fontFamily: "monospace",
-          }}
-        >
-          <div>
-            <strong>Connected:</strong> {isConnected ? "Yes" : "No"}
-          </div>
-          <div>
-            <strong>Address:</strong> {address || "Not connected"}
-          </div>
-          <div>
-            <strong>Wallet Network:</strong>{" "}
-            {walletNetwork
-              ? `${walletNetwork.name} (${walletNetwork.chainId})`
-              : "Not detected"}
-          </div>
-          <div>
-            <strong>Expected Network:</strong> Sepolia (11155111)
-          </div>
-          <div
-            style={{
-              color: walletNetwork?.chainId !== 11155111 ? "red" : "green",
-            }}
-          >
-            <strong>Network Match:</strong>{" "}
-            {walletNetwork?.chainId === 11155111
-              ? "✅ Correct"
-              : "❌ WRONG NETWORK!"}
-          </div>
-          <hr style={{ margin: "8px 0" }} />
-          <div>
-            <strong>GOF Contract:</strong> {CONTRACT_ADDRESS}
-          </div>
-          <div>
-            <strong>Collateral Token:</strong>{" "}
-            {(collateralAddress as string) || "Loading..."}
-          </div>
-          <div>
-            <strong>Has Contract Code:</strong>{" "}
-            {hasContract === true
-              ? "✅ Yes"
-              : hasContract === false
-              ? "❌ No"
-              : "⏳ Checking..."}
-          </div>
-          <hr style={{ margin: "8px 0" }} />
-          <div>
-            <strong>GOF Balance (raw):</strong>{" "}
-            {contractBalance?.toString() || "null"}
-          </div>
-          <div>
-            <strong>GOF Balance (formatted):</strong> {balanceFormatted}
-          </div>
-          <div>
-            <strong>USDC Balance (raw):</strong>{" "}
-            {collateralBalanceData?.toString() || "null"}
-          </div>
-          <div>
-            <strong>USDC Balance (formatted):</strong>{" "}
-            {formatUnits(collateralBalance, 6)} USDC
-          </div>
-          <div>
-            <strong>Required Collateral:</strong>{" "}
-            {requiredCollateral
-              ? formatUnits(requiredCollateral, 6) + " USDC"
-              : "Enter amount first"}
-          </div>
-          <div>
-            <strong>Current Allowance:</strong>{" "}
-            {formatUnits(currentAllowance, 6)} USDC
-          </div>
-          <div style={{ color: needsApproval ? "orange" : "green" }}>
-            <strong>Needs Approval:</strong>{" "}
-            {needsApproval ? "⚠️ Yes - Click Step 1" : "✅ No - Ready to mint"}
-          </div>
-          <hr style={{ margin: "8px 0" }} />
-          <div>
-            <strong>Parsed Amount:</strong> {parsedAmount?.toString() || "None"}
-          </div>
-          <div>
-            <strong>Input Decimals:</strong> {decimals}
-          </div>
-          <div>
-            <strong>Is Pending:</strong> {isWritePending ? "Yes" : "No"}
-          </div>
-          <div>
-            <strong>Is Confirming:</strong> {isConfirming ? "Yes" : "No"}
-          </div>
-          <div>
-            <strong>Last TX Hash:</strong> {txHash || "None"}
-          </div>
-          <hr style={{ margin: "8px 0" }} />
-          <div style={{ marginTop: "8px" }}>
-            <strong>⚠️ Balance showing 0 but you have tokens?</strong>
-            <ul style={{ marginLeft: "20px", marginTop: "4px" }}>
-              <li>Click the 🔄 Refresh buttons above</li>
-              <li>Check you&apos;re on the right network (Sepolia)</li>
-              <li>Verify the contract address matches your deployment</li>
-              <li>
-                Check on{" "}
-                <a
-                  href={`https://sepolia.etherscan.io/address/${address}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ color: "#0070f3" }}
-                >
-                  Etherscan
-                </a>{" "}
-                to confirm your actual balance
-              </li>
-            </ul>
-          </div>
-        </div>
-      </details>
-
+      <h3 className={styles.title}>💰 GoldStable Contract</h3>
       <p className={styles.meta}>
-        GOF Contract: <code className="break-all">{CONTRACT_ADDRESS}</code>{" "}
-        <a
-          href={`https://sepolia.etherscan.io/address/${CONTRACT_ADDRESS}`}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            color: "#0070f3",
-            textDecoration: "underline",
-            fontSize: "12px",
-          }}
-        >
-          View on Etherscan
-        </a>
+        Mint GOF tokens by providing USDC collateral or redeem your GOF for USDC
       </p>
-      {collateralAddress && (
-        <p className={styles.meta}>
-          Collateral Token:{" "}
-          <code className="break-all">{collateralAddress as string}</code>{" "}
-          <a
-            href={`https://sepolia.etherscan.io/address/${
-              collateralAddress as string
-            }`}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              color: "#0070f3",
-              textDecoration: "underline",
-              fontSize: "12px",
-            }}
-          >
-            View on Etherscan
-          </a>
-        </p>
-      )}
-      {address && (
-        <p className={styles.meta}>
-          Your Wallet: <code className="break-all">{address}</code>{" "}
-          <a
-            href={`https://sepolia.etherscan.io/address/${address}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            style={{
-              color: "#0070f3",
-              textDecoration: "underline",
-              fontSize: "12px",
-            }}
-          >
-            View on Etherscan
-          </a>
-        </p>
-      )}
-      <div className={styles.field}>
-        <div className={styles.row}>
-          <div>
-            Configured network:{" "}
-            <strong>
-              {sepolia.name} (chainId {sepolia.id})
-            </strong>
+
+      {/* Balance Overview */}
+      <div className={styles.balanceSection}>
+        <div className={styles.balanceRow}>
+          <span className={styles.balanceLabel}>
+            <span style={{ marginRight: "0.5rem" }}>🪙</span>
+            GOF Balance
+          </span>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <span className={styles.balanceValue}>{balanceFormatted} GOF</span>
+            <button
+              onClick={() => refetchBalance()}
+              className={styles.refreshButton}
+              title="Refresh balance"
+            >
+              🔄
+            </button>
           </div>
         </div>
-        <div className={styles.row}>
-          <div>
-            Wallet network:{" "}
-            <strong>
-              {walletNetwork
-                ? `${walletNetwork.name ?? "unknown"} (chainId ${
-                    walletNetwork.chainId
-                  })`
-                : "not available"}
-            </strong>
+        
+        <div className={styles.balanceRow}>
+          <span className={styles.balanceLabel}>
+            <span style={{ marginRight: "0.5rem" }}>💵</span>
+            USDC Balance
+          </span>
+          <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+            <span className={styles.balanceValue}>
+              {formatUnits(collateralBalance, 6)} USDC
+            </span>
+            <button
+              onClick={() => refetchCollateralBalance()}
+              className={styles.refreshButton}
+              title="Refresh balance"
+            >
+              🔄
+            </button>
           </div>
         </div>
-        {walletNetwork && walletNetwork.chainId !== sepolia.id && (
-          <div className={styles.note}>
-            Warning: wallet network differs from configured frontend network.
-            This may cause contract not found errors.
+
+        {collateralBalance === BigInt(0) && (
+          <div className={`${styles.badge} ${styles.warning}`}>
+            ⚠️ You need USDC to mint GOF tokens.{" "}
+            <a
+              href="https://faucet.circle.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className={styles.link}
+            >
+              Get testnet USDC →
+            </a>
           </div>
         )}
       </div>
 
-      <div className={styles.field}>
-        <div className={styles.row}>
-          <div>Connected: {isConnected ? address : "not connected"}</div>
+      {/* Network Status */}
+      {walletNetwork && walletNetwork.chainId !== sepolia.id && (
+        <div className={`${styles.badge} ${styles.error}`}>
+          ❌ Wrong Network! Please switch to Sepolia (chainId {sepolia.id})
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <span>
-            GOF Balance: <strong>{balanceFormatted}</strong>
-          </span>
-          <button
-            onClick={() => {
-              console.log("Refreshing GOF balance...");
-              refetchBalance();
-            }}
-            style={{
-              padding: "4px 8px",
-              fontSize: "11px",
-              cursor: "pointer",
-              borderRadius: "4px",
-              border: "1px solid #ccc",
-              background: "#fff",
-            }}
-          >
-            🔄 Refresh
-          </button>
+      )}
+
+      {/* Mint/Redeem Section */}
+      <div className={styles.section}>
+        <div className={styles.field}>
+          <label>Amount (GOF tokens)</label>
+          <input
+            className={styles.input}
+            value={inputAmount}
+            onChange={(e) => setInputAmount(e.target.value)}
+            placeholder="Enter amount (e.g., 100)"
+            type="number"
+            step="any"
+          />
         </div>
-        {collateralAddress && (
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-            <span>
-              Collateral Balance:{" "}
-              <strong>{formatUnits(collateralBalance, 6)} USDC</strong>
-            </span>
-            <button
-              onClick={() => {
-                console.log("Refreshing USDC balance...");
-                refetchCollateralBalance();
-              }}
-              style={{
-                padding: "4px 8px",
-                fontSize: "11px",
-                cursor: "pointer",
-                borderRadius: "4px",
-                border: "1px solid #ccc",
-                background: "#fff",
-              }}
-            >
-              🔄 Refresh
-            </button>
-            {collateralBalance === BigInt(0) && (
-              <span style={{ color: "#ff4444", marginLeft: "8px" }}>
-                ⚠️ You need USDC! Get it from{" "}
-                <a
-                  href="https://faucet.circle.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{ color: "#0070f3", textDecoration: "underline" }}
-                >
-                  Circle Faucet
-                </a>
+
+        {requiredCollateral && parsedAmount && (
+          <div className={styles.infoPanel}>
+            <div className={styles.infoRow}>
+              <span className={styles.infoLabel}>Amount to mint</span>
+              <span className={styles.infoValue}>{inputAmount} GOF</span>
+            </div>
+            <div className={styles.infoRow}>
+              <span className={styles.infoLabel}>Required USDC (with fees)</span>
+              <span className={styles.infoValue}>
+                {formatUnits(requiredCollateral, 6)} USDC
               </span>
+            </div>
+            {needsApproval && (
+              <div className={styles.infoRow}>
+                <span className={styles.infoLabel}>Status</span>
+                <span className={styles.infoValue} style={{ color: "#ffa500" }}>
+                  ⚠️ Approval needed
+                </span>
+              </div>
             )}
           </div>
         )}
-      </div>
 
-      <div className={styles.field}>
-        <label className={styles.meta}>Amount (token units)</label>
-        <input
-          className={styles.input}
-          value={inputAmount}
-          onChange={(e) => setInputAmount(e.target.value)}
-          placeholder={`ex: 1.5 (decimals: ${decimals})`}
-        />
-        {requiredCollateral && (
-          <div className={styles.meta} style={{ marginTop: "8px" }}>
-            Required collateral (with fees):{" "}
-            {formatUnits(requiredCollateral, 6)} USDC
-          </div>
-        )}
-        {currentAllowance > BigInt(0) && (
-          <div className={styles.meta}>
-            Current allowance: {formatUnits(currentAllowance, 6)} USDC
-          </div>
-        )}
-      </div>
+        <div className={styles.row}>
+          {needsApproval && parsedAmount ? (
+            <button
+              className={styles.primary}
+              onClick={handleApprove}
+              disabled={
+                !isConnected ||
+                !walletClient ||
+                !requiredCollateral ||
+                isWritePending ||
+                isConfirming ||
+                isApproving
+              }
+            >
+              {isWritePending || isConfirming
+                ? "⏳ Approving..."
+                : "1️⃣ Approve USDC"}
+            </button>
+          ) : null}
 
-      <div className={styles.row}>
-        {needsApproval && parsedAmount ? (
           <button
             className={styles.primary}
-            onClick={() => handleApprove()}
+            onClick={handleMint}
             disabled={
               !isConnected ||
               !walletClient ||
-              !requiredCollateral ||
+              !parsedAmount ||
               isWritePending ||
               isConfirming ||
-              isApproving
+              needsApproval
             }
-            style={{
-              opacity:
-                !isConnected ||
-                !walletClient ||
-                !requiredCollateral ||
-                isWritePending ||
-                isConfirming ||
-                isApproving
-                  ? 0.5
-                  : 1,
-              cursor:
-                !isConnected ||
-                !walletClient ||
-                !requiredCollateral ||
-                isWritePending ||
-                isConfirming ||
-                isApproving
-                  ? "not-allowed"
-                  : "pointer",
-            }}
           >
             {isWritePending || isConfirming
-              ? "⏳ Approving..."
-              : "1️⃣ Approve Collateral"}
+              ? "⏳ Processing..."
+              : needsApproval && parsedAmount
+              ? "2️⃣ Mint GOF (Approve First)"
+              : "✅ Mint GOF Tokens"}
           </button>
-        ) : null}
 
-        <button
-          className={styles.primary}
-          onClick={() => handleMint()}
-          disabled={
-            !isConnected ||
-            !walletClient ||
-            !parsedAmount ||
-            isWritePending ||
-            isConfirming ||
-            needsApproval
-          }
-          style={{
-            opacity:
-              !isConnected ||
-              !walletClient ||
-              !parsedAmount ||
-              isWritePending ||
-              isConfirming ||
-              needsApproval
-                ? 0.5
-                : 1,
-            cursor:
-              !isConnected ||
-              !walletClient ||
-              !parsedAmount ||
-              isWritePending ||
-              isConfirming ||
-              needsApproval
-                ? "not-allowed"
-                : "pointer",
-            backgroundColor: needsApproval ? "#666" : undefined,
-          }}
-        >
-          {isWritePending || isConfirming
-            ? "⏳ Processing..."
-            : needsApproval
-            ? "2️⃣ Mint with collateral (Approve first)"
-            : "✅ Mint with collateral"}
-        </button>
-
-        <button
-          className={styles.secondary}
-          onClick={() => handleRedeem()}
-          disabled={
-            !isConnected ||
-            !walletClient ||
-            !parsedAmount ||
-            isWritePending ||
-            isConfirming
-          }
-          style={{
-            opacity:
+          <button
+            className={styles.secondary}
+            onClick={handleRedeem}
+            disabled={
               !isConnected ||
               !walletClient ||
               !parsedAmount ||
               isWritePending ||
               isConfirming
-                ? 0.5
-                : 1,
-            cursor:
-              !isConnected ||
-              !walletClient ||
-              !parsedAmount ||
-              isWritePending ||
-              isConfirming
-                ? "not-allowed"
-                : "pointer",
-          }}
-        >
-          {isWritePending || isConfirming ? "⏳ Processing..." : "🔄 Redeem"}
-        </button>
+            }
+          >
+            {isWritePending || isConfirming ? "⏳ Processing..." : "🔄 Redeem GOF"}
+          </button>
+        </div>
       </div>
 
-      {error && <div className={styles.error}>Error: {String(error)}</div>}
+      {error && (
+        <div className={styles.error}>
+          <strong>Error:</strong> {error}
+        </div>
+      )}
 
       {txHash && (
-        <div className={styles.note}>
-          <div style={{ marginBottom: "8px" }}>
-            <strong>Transaction Details:</strong>
-          </div>
-          <div
-            style={{
-              fontSize: "12px",
-              wordBreak: "break-all",
-              marginBottom: "8px",
-            }}
-          >
-            Hash: {txHash}
-          </div>
-          <div>
-            {isConfirming && <span>⏳ Waiting for confirmation...</span>}
-            {isConfirmed && (
-              <span style={{ color: "#00cc00" }}>✅ Confirmed!</span>
-            )}
-          </div>
+        <div className={`${styles.badge} ${isConfirmed ? styles.success : styles.info}`}>
+          {isConfirming && <span>⏳ Waiting for confirmation...</span>}
+          {isConfirmed && <span>✅ Transaction confirmed!</span>}
+          {!isConfirming && !isConfirmed && <span>📝 Transaction submitted</span>}
+          <br />
           <a
             href={`https://sepolia.etherscan.io/tx/${txHash}`}
             target="_blank"
             rel="noopener noreferrer"
-            style={{ color: "#0070f3", textDecoration: "underline" }}
+            className={styles.link}
           >
-            View on Etherscan
+            View on Etherscan →
           </a>
-          <div style={{ fontSize: "11px", marginTop: "8px", color: "#666" }}>
-            Note: It may take a few seconds for the transaction to appear on
-            Etherscan. If it doesn&apos;t appear after 30 seconds, the
-            transaction may have been rejected.
-          </div>
         </div>
       )}
 
-      <div className={styles.note}>
-        Note: Minting requires two transactions:
-        <br />
-        1. First, approve the contract to spend your collateral token (USDC)
-        <br />
-        2. Then, mint the GOF tokens with your collateral
+      <div className={styles.instructions}>
+        <strong>How to mint GOF tokens:</strong>
+        <ol>
+          <li>Enter the amount of GOF tokens you want to mint</li>
+          <li>Approve the contract to spend your USDC (one-time approval)</li>
+          <li>Mint your GOF tokens by providing USDC as collateral</li>
+          <li>You can redeem GOF tokens back to USDC anytime</li>
+        </ol>
       </div>
+
+      {/* Contract Info - Collapsible */}
+      <details className={styles.detailsPanel}>
+        <summary>📋 Contract Information</summary>
+        <div className={styles.detailsContent}>
+          <div className={styles.infoRow}>
+            <span className={styles.infoLabel}>GOF Contract</span>
+            <span className={styles.infoValue}>
+              <code>{CONTRACT_ADDRESS.slice(0, 6)}...{CONTRACT_ADDRESS.slice(-4)}</code>
+              <a
+                href={`https://sepolia.etherscan.io/address/${CONTRACT_ADDRESS}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={styles.link}
+                style={{ marginLeft: "0.5rem" }}
+              >
+                →
+              </a>
+            </span>
+          </div>
+          {collateralAddress && (
+            <div className={styles.infoRow}>
+              <span className={styles.infoLabel}>USDC Contract</span>
+              <span className={styles.infoValue}>
+                <code>{(collateralAddress as string).slice(0, 6)}...{(collateralAddress as string).slice(-4)}</code>
+                <a
+                  href={`https://sepolia.etherscan.io/address/${collateralAddress as string}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.link}
+                  style={{ marginLeft: "0.5rem" }}
+                >
+                  →
+                </a>
+              </span>
+            </div>
+          )}
+          {address && (
+            <div className={styles.infoRow}>
+              <span className={styles.infoLabel}>Your Wallet</span>
+              <span className={styles.infoValue}>
+                <code>{address.slice(0, 6)}...{address.slice(-4)}</code>
+                <a
+                  href={`https://sepolia.etherscan.io/address/${address}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={styles.link}
+                  style={{ marginLeft: "0.5rem" }}
+                >
+                  →
+                </a>
+              </span>
+            </div>
+          )}
+          <div className={styles.infoRow}>
+            <span className={styles.infoLabel}>Network</span>
+            <span className={styles.infoValue}>
+              {sepolia.name} (Chain ID: {sepolia.id})
+            </span>
+          </div>
+        </div>
+      </details>
     </div>
   );
 }

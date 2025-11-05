@@ -1,42 +1,36 @@
-.hero {
+.page {
+  width: 100%;
+  min-height: 100vh;
+  background: #fff;
+}
+
+.dashboardWrapper {
+  width: 100%;
+  padding: 6rem 2rem;
+  background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+.contractsGrid {
+  max-width: 1400px;
+  margin: 3rem auto 0;
+  padding: 0 2rem;
   display: grid;
-  grid-template-columns: 1fr 420px;
-  gap: 2.25rem;
-  align-items: start;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 500px), 1fr));
+  gap: 2rem;
+  
+  @media (max-width: 1024px) {
+    grid-template-columns: 1fr;
+    padding: 0 1rem;
+    gap: 1.5rem;
+  }
 }
 
-.heroLeft {
-  display:flex;
-  flex-direction:column;
-  gap:1rem;
-}
+@media (prefers-color-scheme: dark) {
+  .page {
+    background: #0a0a0a;
+  }
 
-.title {
-  font-size: 2rem;
-  line-height: 1.05;
-  font-weight: 700;
-  color: var(--text);
-}
-
-.lead {
-  font-size: 1.05rem;
-  color: var(--muted);
-  max-width: 48rem;
-}
-
-.rightCol {
-  display:flex;
-  flex-direction:column;
-  gap:1rem;
-}
-
-.linksRow {
-  display:flex;
-  gap:0.5rem;
-  margin-top:1rem;
-}
-
-@media (max-width: 980px) {
-  .hero { grid-template-columns: 1fr; }
-  .rightCol { order: -1; }
+  .dashboardWrapper {
+    background: linear-gradient(180deg, #0a0a0a 0%, #1a1a2e 100%);
+  }
 }

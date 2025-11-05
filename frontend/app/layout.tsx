@@ -9,6 +9,8 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import "./globals.css";
 import styles from "./layout.module.scss";
 import { RainbowKitProvider } from "@rainbow-me/rainbowkit";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -30,16 +32,19 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        <div className={styles.container}>
-          <div className={styles.content}>
-            <WagmiProvider config={config}>
-              <QueryClientProvider client={queryClient}>
-                <RainbowKitProvider>{children}</RainbowKitProvider>
-              </QueryClientProvider>
-            </WagmiProvider>
-            <footer className={styles.footer}>Built with ⚡ by your team</footer>
-          </div>
-        </div>
+        <WagmiProvider config={config}>
+          <QueryClientProvider client={queryClient}>
+            <RainbowKitProvider>
+              <div className={styles.container}>
+                <Header />
+                <main className={styles.main}>
+                  {children}
+                </main>
+                <Footer />
+              </div>
+            </RainbowKitProvider>
+          </QueryClientProvider>
+        </WagmiProvider>
       </body>
     </html>
   );
