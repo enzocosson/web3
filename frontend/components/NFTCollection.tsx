@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { PinataSDK } from "pinata-web3";
 import { useAccount, useWriteContract, useWaitForTransactionReceipt, useReadContract } from "wagmi";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { parseUnits, formatUnits } from "ethers";
 import { GOLDEN_RESERVES_NFT_ABI, Rarity, RARITY_INFO } from "./nftAbi";
 import { ABI as GOF_ABI } from "./abi";
@@ -23,14 +24,145 @@ interface NFTData {
   };
 }
 
+interface RarityCardProps {
+  rarity: Rarity;
+  rarityInfo: typeof RARITY_INFO[Rarity];
+  gofBalance: bigint;
+  currentAllowance: bigint;
+  isConnected: boolean;
+  onMint: (rarity: Rarity) => void;
+  onApprove: (rarity: Rarity) => void;
+  onUpload: (rarity: Rarity) => void;
+  isPending: boolean;
+  isConfirming: boolean;
+  uploadingRarity: Rarity | null;
+  approvingRarity: Rarity | null;
+  ipfsUrl: string | null;
+}
+
+function RarityCard({
+  rarity,
+  rarityInfo,
+  gofBalance,
+  currentAllowance,
+  onMint,
+  onApprove,
+  onUpload,
+  isPending,
+  isConfirming,
+  uploadingRarity,
+  approvingRarity,
+  ipfsUrl,
+}: RarityCardProps) {
+  const requiredAmount = parseUnits(rarityInfo.price, 18);
+  const needsApproval = currentAllowance < requiredAmount;
+  const hasEnoughBalance = gofBalance >= requiredAmount;
+  const isUploading = uploadingRarity === rarity;
+  const isApproving = approvingRarity === rarity;
+
+  return (
+    <div className={styles.rarityCard} style={{ borderColor: rarityInfo.color }}>
+      <div className={styles.rarityHeader} style={{ background: `linear-gradient(135deg, ${rarityInfo.color}15, ${rarityInfo.color}05)` }}>
+        <h3 className={styles.rarityName} style={{ color: rarityInfo.color }}>
+          {rarityInfo.name}
+        </h3>
+        <div className={styles.rarityPrice} style={{ color: rarityInfo.color }}>
+          {rarityInfo.price} GOF
+        </div>
+      </div>
+
+      <div className={styles.rarityImage}>
+        <Image
+          src={rarityInfo.template}
+          alt={rarityInfo.name}
+          width={300}
+          height={420}
+          className={styles.certificatePreview}
+        />
+      </div>
+
+      <p className={styles.rarityDescription}>
+        {rarityInfo.description}
+      </p>
+
+      <div className={styles.rarityBenefits}>
+        <div className={styles.benefitItem}>
+          <span className={styles.benefitLabel}>Gold Backing:</span>
+          <span className={styles.benefitValue}>{rarityInfo.goldBacking}</span>
+        </div>
+        <div className={styles.benefitItem}>
+          <span className={styles.benefitLabel}>Fee Discount:</span>
+          <span className={styles.benefitValue}>{rarityInfo.feeDiscount}</span>
+        </div>
+        <div className={styles.benefitItem}>
+          <span className={styles.benefitLabel}>Staking Bonus:</span>
+          <span className={styles.benefitValue}>{rarityInfo.stakingBonus}</span>
+        </div>
+      </div>
+
+      <div className={styles.rarityActions}>
+        {!hasEnoughBalance ? (
+          <div className={styles.insufficientBalance}>
+            ⚠️ Insufficient GOF Balance
+            <div className={styles.balanceInfo}>
+              You have: {formatUnits(gofBalance, 18)} GOF
+            </div>
+          </div>
+        ) : (
+          <>
+            {!ipfsUrl && (
+              <button
+                className={styles.actionButton}
+                style={{ background: `linear-gradient(135deg, ${rarityInfo.color}, ${rarityInfo.color}dd)` }}
+                onClick={() => onUpload(rarity)}
+                disabled={isUploading}
+              >
+                {isUploading ? "⏳ Uploading..." : "📤 Upload Certificate"}
+              </button>
+            )}
+
+            {ipfsUrl && needsApproval && (
+              <button
+                className={styles.actionButton}
+                style={{ background: `linear-gradient(135deg, ${rarityInfo.color}, ${rarityInfo.color}dd)` }}
+                onClick={() => onApprove(rarity)}
+                disabled={isPending || isConfirming || isApproving}
+              >
+                {isPending || isConfirming || isApproving ? "⏳ Approving..." : "1️⃣ Approve GOF"}
+              </button>
+            )}
+
+            {ipfsUrl && !needsApproval && (
+              <button
+                className={styles.actionButton}
+                style={{ background: `linear-gradient(135deg, ${rarityInfo.color}, ${rarityInfo.color}dd)` }}
+                onClick={() => onMint(rarity)}
+                disabled={isPending || isConfirming}
+              >
+                {isPending || isConfirming ? "⏳ Minting..." : "🎨 Mint NFT"}
+              </button>
+            )}
+          </>
+        )}
+      </div>
+
+      {ipfsUrl && (
+        <div className={styles.uploadSuccess}>
+          ✅ Certificate ready to mint!
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function NFTCollection() {
   const { address, isConnected } = useAccount();
-  const [selectedRarity, setSelectedRarity] = useState<Rarity>(Rarity.BRONZE);
-  const [uploading, setUploading] = useState(false);
+  const [uploadingRarity, setUploadingRarity] = useState<Rarity | null>(null);
+  const [approvingRarity, setApprovingRarity] = useState<Rarity | null>(null);
+  const [mintingRarity, setMintingRarity] = useState<Rarity | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [ipfsUrl, setIpfsUrl] = useState<string | null>(null);
+  const [ipfsUrls, setIpfsUrls] = useState<Record<number, string>>({});
   const [ownedNFTs, setOwnedNFTs] = useState<NFTData[]>([]);
-  const [isApproving, setIsApproving] = useState(false);
 
   const { data: txHash, writeContract, isPending } = useWriteContract();
   const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
@@ -82,8 +214,6 @@ export default function NFTCollection() {
 
   const gofBalance = gofBalanceData ? BigInt(gofBalanceData.toString()) : BigInt(0);
   const currentAllowance = allowanceData ? BigInt(allowanceData.toString()) : BigInt(0);
-  const requiredAmount = parseUnits(RARITY_INFO[selectedRarity].price, 18);
-  const needsApproval = currentAllowance < requiredAmount;
 
   const pinata = new PinataSDK({
     pinataJwt: process.env.NEXT_PUBLIC_PINATA_JWT!,
@@ -102,12 +232,10 @@ export default function NFTCollection() {
       
       for (const tokenId of userTokenIds as bigint[]) {
         try {
-          // For now, create NFT data with tokenId
-          // Metadata will be fetched from IPFS in next step
           const nftData: NFTData = {
             tokenId: tokenId.toString(),
             tokenURI: "",
-            rarity: Rarity.BRONZE, // Will be read from contract
+            rarity: Rarity.BRONZE,
           };
           
           nfts.push(nftData);
@@ -127,20 +255,17 @@ export default function NFTCollection() {
     if (isConfirmed) {
       refetchNFTs();
       refetchAllowance();
+      setApprovingRarity(null);
+      setMintingRarity(null);
     }
   }, [isConfirmed, refetchNFTs, refetchAllowance]);
 
-  const uploadToIPFS = async () => {
-    if (!selectedRarity && selectedRarity !== 0) {
-      setError("Please select a rarity tier");
-      return null;
-    }
-
-    setUploading(true);
+  const uploadToIPFS = async (rarity: Rarity) => {
+    setUploadingRarity(rarity);
     setError(null);
 
     try {
-      const rarityInfo = RARITY_INFO[selectedRarity];
+      const rarityInfo = RARITY_INFO[rarity];
       
       // Fetch the SVG template
       const svgResponse = await fetch(rarityInfo.template);
@@ -195,30 +320,32 @@ export default function NFTCollection() {
       const metadataUrl = `ipfs://${metadataUpload.IpfsHash}`;
       console.log("Metadata uploaded:", metadataUrl);
 
-      setIpfsUrl(metadataUrl);
+      setIpfsUrls(prev => ({ ...prev, [rarity]: metadataUrl }));
       return metadataUrl;
     } catch (err) {
       console.error("IPFS upload error:", err);
       setError(err instanceof Error ? err.message : "Upload failed");
       return null;
     } finally {
-      setUploading(false);
+      setUploadingRarity(null);
     }
   };
 
-  const handleApprove = async () => {
+  const handleApprove = async (rarity: Rarity) => {
     if (!isConnected || !address) {
       setError("Please connect your wallet");
       return;
     }
 
+    const requiredAmount = parseUnits(RARITY_INFO[rarity].price, 18);
+
     if (gofBalance < requiredAmount) {
-      setError(`Insufficient GOF balance. You need ${RARITY_INFO[selectedRarity].price} GOF but only have ${formatUnits(gofBalance, 18)} GOF`);
+      setError(`Insufficient GOF balance. You need ${RARITY_INFO[rarity].price} GOF but only have ${formatUnits(gofBalance, 18)} GOF`);
       return;
     }
 
     setError(null);
-    setIsApproving(true);
+    setApprovingRarity(rarity);
 
     writeContract(
       {
@@ -234,52 +361,47 @@ export default function NFTCollection() {
         onError: (error) => {
           console.error("❌ Approval error:", error);
           setError(error.message);
-          setIsApproving(false);
+          setApprovingRarity(null);
         },
       }
     );
   };
 
-  useEffect(() => {
-    if (isConfirmed && isApproving) {
-      setIsApproving(false);
-    }
-  }, [isConfirmed, isApproving]);
-
-  const mintNFT = async () => {
+  const mintNFT = async (rarity: Rarity) => {
     if (!isConnected || !address) {
       setError("Please connect your wallet");
       return;
     }
 
-    if (needsApproval) {
-      setError("Please approve GOF tokens first (step 1)");
-      return;
-    }
-
-    const tokenURI = ipfsUrl || (await uploadToIPFS());
+    const tokenURI = ipfsUrls[rarity] || (await uploadToIPFS(rarity));
     if (!tokenURI) {
       setError("Failed to upload to IPFS");
       return;
     }
 
-    console.log("Minting NFT with URI:", tokenURI, "Rarity:", selectedRarity);
+    console.log("Minting NFT with URI:", tokenURI, "Rarity:", rarity);
+    setMintingRarity(rarity);
 
     writeContract(
       {
         address: NFT_CONTRACT_ADDRESS,
         abi: GOLDEN_RESERVES_NFT_ABI,
         functionName: "mintWithGOF",
-        args: [tokenURI, selectedRarity],
+        args: [tokenURI, rarity],
       },
       {
         onSuccess: (hash) => {
           console.log("✅ NFT minted! Hash:", hash);
-          setIpfsUrl(null);
+          setIpfsUrls(prev => {
+            const newUrls = { ...prev };
+            delete newUrls[rarity];
+            return newUrls;
+          });
         },
         onError: (error) => {
           console.error("❌ Mint error:", error);
           setError(error.message);
+          setMintingRarity(null);
         },
       }
     );
@@ -304,116 +426,61 @@ export default function NFTCollection() {
   }
 
   return (
-    <div className={styles.nftCard}>
-      <h3 className={styles.nftTitle}>🎨 Golden Reserves NFT</h3>
-      
-      <p className={styles.meta}>
-        Mint exclusive reserve certificates by staking GOF tokens
-      </p>
-
-      {/* Rarity Selection */}
-      <div className={styles.tierGrid}>
-        {Object.entries(RARITY_INFO).map(([key, info]) => {
-          const rarityKey = Number(key) as Rarity;
-          const isSelected = selectedRarity === rarityKey;
-          return (
-            <div
-              key={key}
-              className={`${styles.tierCard} ${isSelected ? styles.selected : ''}`}
-              onClick={() => setSelectedRarity(rarityKey)}
-            >
-              <div className={styles.tierHeader}>
-                <div className={styles.tierName} style={{ color: info.color }}>
-                  {info.name}
-                </div>
-                <div className={styles.tierCheckmark} style={{ color: info.color }}>
-                  {isSelected && '✓'}
-                </div>
-              </div>
-              <div className={styles.tierPrice} style={{ color: info.color }}>
-                {info.price} GOF
-              </div>
-              <div className={styles.tierDescription}>
-                {info.description}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+    <div className={`${styles.nftCard} ${!isConnected ? styles.locked : ''}`}>
+      {!isConnected && (
+        <div className={styles.lockOverlay}>
+          <div className={styles.lockContent}>
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <h4>Wallet Connection Required</h4>
+            <p>Please connect your wallet to access the Golden Reserves NFT Collection</p>
+            <ConnectButton.Custom>
+              {({ openConnectModal }) => (
+                <button className={styles.connectButton} onClick={openConnectModal}>
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M17 8h-1V6c0-2.76-2.24-5-5-5S6 3.24 6 6v2H5c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-8c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6z" />
+                  </svg>
+                  Connect Wallet
+                </button>
+              )}
+            </ConnectButton.Custom>
+          </div>
+        </div>
+      )}
 
       {/* Balance Info */}
       <div className={styles.balanceSection}>
         <div className={styles.balanceRow}>
-          <span className={styles.balanceLabel}>Your GOF Balance</span>
+          <span className={styles.balanceLabel}>💰 Your GOF Balance</span>
           <span className={styles.balanceValue}>{formatUnits(gofBalance, 18)} GOF</span>
         </div>
-        <div className={styles.balanceRow}>
-          <span className={styles.balanceLabel}>Required for {RARITY_INFO[selectedRarity].name}</span>
-          <span className={styles.balanceValue} style={{ color: RARITY_INFO[selectedRarity].color }}>
-            {RARITY_INFO[selectedRarity].price} GOF
-          </span>
-        </div>
-        {currentAllowance > BigInt(0) && (
-          <div className={styles.balanceRow}>
-            <span className={styles.balanceLabel}>Current Allowance</span>
-            <span className={styles.balanceValue}>{formatUnits(currentAllowance, 18)} GOF</span>
-          </div>
-        )}
       </div>
 
-      {/* Preview */}
-      {RARITY_INFO[selectedRarity] && (
-        <div className={styles.previewSection}>
-          <div className={styles.previewLabel}>Certificate Preview</div>
-          <Image 
-            src={RARITY_INFO[selectedRarity].template} 
-            alt={RARITY_INFO[selectedRarity].name}
-            width={500}
-            height={700}
-            className={styles.previewImage}
-          />
-        </div>
-      )}
-
-      {ipfsUrl && (
-        <div className={`${styles.statusBadge} ${styles.success}`}>
-          ✅ Certificate uploaded to IPFS successfully!
-        </div>
-      )}
-
-      {/* Action Buttons */}
-      <div className={styles.row}>
-        {!ipfsUrl && (
-          <button
-            className={styles.primary}
-            onClick={uploadToIPFS}
-            disabled={uploading || !isConnected}
-          >
-            {uploading ? "⏳ Uploading..." : "📤 Upload Certificate"}
-          </button>
-        )}
-
-        {needsApproval && ipfsUrl ? (
-          <button
-            className={styles.primary}
-            onClick={handleApprove}
-            disabled={!isConnected || isPending || isConfirming || isApproving}
-          >
-            {isPending || isConfirming ? "⏳ Approving..." : "1️⃣ Approve GOF Tokens"}
-          </button>
-        ) : null}
-
-        <button
-          className={styles.primary}
-          onClick={mintNFT}
-          disabled={!isConnected || !ipfsUrl || needsApproval || isPending || isConfirming}
-        >
-          {isPending || isConfirming 
-            ? "⏳ Minting..." 
-            : needsApproval && ipfsUrl 
-            ? "2️⃣ Mint NFT (Approve First)" 
-            : "🎨 Mint Reserve Certificate"}
-        </button>
+      {/* Rarity Grid */}
+      <div className={styles.raritiesGrid}>
+        {Object.entries(RARITY_INFO).map(([key, info]) => {
+          const rarityKey = Number(key) as Rarity;
+          return (
+            <RarityCard
+              key={key}
+              rarity={rarityKey}
+              rarityInfo={info}
+              gofBalance={gofBalance}
+              currentAllowance={currentAllowance}
+              isConnected={isConnected}
+              onMint={mintNFT}
+              onApprove={handleApprove}
+              onUpload={uploadToIPFS}
+              isPending={isPending}
+              isConfirming={isConfirming}
+              uploadingRarity={uploadingRarity}
+              approvingRarity={approvingRarity}
+              ipfsUrl={ipfsUrls[rarityKey] || null}
+            />
+          );
+        })}
       </div>
 
       {error && <div className={styles.error}>⚠️ {error}</div>}
@@ -472,16 +539,7 @@ export default function NFTCollection() {
           </div>
         </div>
       )}
-
-      <div className={styles.instructions}>
-        <strong>How to Mint Your Reserve Certificate:</strong>
-        <ol>
-          <li>Select your desired reserve tier (Bronze, Silver, Gold, or Diamond)</li>
-          <li>Upload the certificate design to IPFS (decentralized storage)</li>
-          <li>Approve the NFT contract to spend your GOF tokens</li>
-          <li>Mint your exclusive Reserve Certificate NFT</li>
-        </ol>
-      </div>
     </div>
   );
 }
+

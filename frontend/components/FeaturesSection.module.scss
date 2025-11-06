@@ -1,7 +1,7 @@
 .features {
   width: 100%;
   padding: 6rem 2rem;
-  background: linear-gradient(180deg, #fff 0%, #f8f9fa 100%);
+  background: #070707;
 }
 
 .container {
@@ -18,7 +18,7 @@
 }
 
 .label {
-  color: #FFD700;
+  color: #ffd700;
   font-size: 0.875rem;
   font-weight: 600;
   text-transform: uppercase;
@@ -29,13 +29,13 @@
 .title {
   font-size: clamp(2rem, 5vw, 3rem);
   font-weight: 700;
-  color: #000;
+  color: #fff;
   margin-bottom: 1rem;
 }
 
 .subtitle {
   font-size: 1.125rem;
-  color: #666;
+  color: rgba(255, 255, 255, 0.6);
   line-height: 1.6;
 }
 
@@ -53,8 +53,8 @@
 .card {
   position: relative;
   padding: 2.5rem;
-  background: #fff;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #1e1e1e;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 20px;
   transition: all 0.3s ease;
   overflow: hidden;
@@ -66,7 +66,7 @@
     left: 0;
     right: 0;
     height: 4px;
-    background: linear-gradient(90deg, #FFD700, #FFA500);
+    background: #ffd700;
     transform: scaleX(0);
     transform-origin: left;
     transition: transform 0.3s ease;
@@ -74,7 +74,7 @@
 
   &:hover {
     transform: translateY(-8px);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 20px 40px rgba(255, 215, 0, 0.2);
 
     &::before {
       transform: scaleX(1);
@@ -104,12 +104,12 @@
 .cardTitle {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #000;
+  color: #fff;
   margin-bottom: 1rem;
 }
 
 .cardDescription {
-  color: #666;
+  color: rgba(255, 255, 255, 0.6);
   line-height: 1.6;
   font-size: 0.95rem;
 }
@@ -121,13 +121,13 @@
   height: 60px;
   margin-top: 1.5rem;
   padding: 1rem;
-  background: rgba(102, 126, 234, 0.05);
+  background: rgba(255, 215, 0, 0.1);
   border-radius: 12px;
 }
 
 .bar {
   flex: 1;
-  background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+  background: #ffd700;
   border-radius: 4px 4px 0 0;
   animation: growBar 1s ease-out;
 }
@@ -150,9 +150,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: rgba(245, 87, 108, 0.1);
+  background: rgba(255, 215, 0, 0.1);
   border-radius: 50%;
-  color: #f5576c;
+  color: #ffd700;
   animation: pulse 2s infinite;
 
   svg {
@@ -162,7 +162,8 @@
 }
 
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     opacity: 1;
   }
@@ -174,7 +175,6 @@
 
 @media (prefers-color-scheme: dark) {
   .features {
-    background: linear-gradient(180deg, #0a0a0a 0%, #1a1a1a 100%);
   }
 
   .title {
@@ -182,7 +182,7 @@
   }
 
   .subtitle {
-    color: #999;
+    color: rgba(255, 255, 255, 0.6);
   }
 
   .card {
@@ -199,6 +199,6 @@
   }
 
   .cardDescription {
-    color: #999;
+    color: rgba(255, 255, 255, 0.6);
   }
 }

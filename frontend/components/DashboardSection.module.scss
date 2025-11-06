@@ -1,7 +1,7 @@
 .dashboard {
   width: 100%;
   padding: 6rem 2rem;
-  background: #f8f9fa;
+  background: #000;
 }
 
 .container {
@@ -29,13 +29,13 @@
 .title {
   font-size: clamp(2rem, 5vw, 3rem);
   font-weight: 700;
-  color: #000;
+  color: #fff;
   margin-bottom: 1rem;
 }
 
 .subtitle {
   font-size: 1.125rem;
-  color: #666;
+  color: rgba(255, 255, 255, 0.6);
   line-height: 1.6;
   margin-bottom: 2rem;
 }
@@ -45,7 +45,7 @@
   align-items: center;
   gap: 0.75rem;
   padding: 1rem 2rem;
-  background: linear-gradient(135deg, #FFD700, #FFA500);
+  background: #FFD700;
   border: none;
   border-radius: 12px;
   color: #000;
@@ -73,7 +73,8 @@
 }
 
 .cryptoCard {
-  background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+  background: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 24px;
   padding: 2.5rem;
   color: #fff;
@@ -139,7 +140,7 @@
 
 .chartBar {
   flex: 1;
-  background: linear-gradient(180deg, #FFD700 0%, #FFA500 100%);
+  background: #FFD700;
   border-radius: 4px 4px 0 0;
   transition: height 0.5s ease;
   animation: grow 1s ease-out backwards;
@@ -179,8 +180,8 @@
 }
 
 .balanceCard {
-  background: #fff;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 24px;
   padding: 2.5rem;
 }
@@ -193,17 +194,17 @@
 
   span {
     font-size: 0.875rem;
-    color: #666;
+    color: rgba(255, 255, 255, 0.6);
     font-weight: 500;
   }
 }
 
 .currencySelect {
   padding: 0.5rem 1rem;
-  background: #f8f9fa;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #000;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 8px;
-  color: #333;
+  color: #fff;
   font-size: 0.875rem;
   cursor: pointer;
 }
@@ -211,7 +212,7 @@
 .totalAmount {
   font-size: 2.5rem;
   font-weight: 700;
-  color: #000;
+  color: #fff;
   margin-bottom: 2rem;
 }
 
@@ -224,7 +225,7 @@
 
 .miniBar {
   flex: 1;
-  background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+  background: #FFD700;
   border-radius: 2px 2px 0 0;
   animation: grow 1s ease-out backwards;
 
@@ -234,8 +235,8 @@
 }
 
 .pairsTable {
-  background: #fff;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: #1a1a1a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 24px;
   padding: 2.5rem;
 }
@@ -243,7 +244,7 @@
 .tableTitle {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #000;
+  color: #fff;
   margin-bottom: 2rem;
 }
 
@@ -274,29 +275,29 @@
 
 .tableHeader {
   font-size: 0.875rem;
-  color: #666;
+  color: rgba(255, 255, 255, 0.6);
   font-weight: 600;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .tableRow {
-  background: #f8f9fa;
+  background: #000;
   border-radius: 12px;
   transition: all 0.3s ease;
 
   &:hover {
-    background: #f0f0f0;
+    background: #0a0a0a;
     transform: translateX(4px);
   }
 }
 
 .pairName {
   font-weight: 600;
-  color: #000;
+  color: #fff;
 }
 
 .volume {
-  color: #666;
+  color: rgba(255, 255, 255, 0.6);
   font-size: 0.875rem;
 }
 
@@ -308,17 +309,17 @@
   font-weight: 600;
 
   &.positive {
-    color: #00cc00;
+    color: #FFD700;
   }
 
   &.negative {
-    color: #ff4444;
+    color: rgba(255, 255, 255, 0.4);
   }
 }
 
 .price {
   font-weight: 600;
-  color: #000;
+  color: #fff;
   text-align: right;
 }
 

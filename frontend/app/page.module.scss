@@ -4,24 +4,95 @@
   background: #fff;
 }
 
-.dashboardWrapper {
-  width: 100%;
-  padding: 6rem 2rem;
-  background: linear-gradient(180deg, #f8f9fa 0%, #e9ecef 100%);
+// Section commune styles
+.sectionHeader {
+  text-align: center;
+  margin-bottom: 3rem;
+  
+  @media (max-width: 768px) {
+    margin-bottom: 2rem;
+  }
 }
 
-.contractsGrid {
-  max-width: 1400px;
-  margin: 3rem auto 0;
-  padding: 0 2rem;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 500px), 1fr));
-  gap: 2rem;
+.sectionTitle {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, #d4af37 0%, #f4e6b8 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   
-  @media (max-width: 1024px) {
-    grid-template-columns: 1fr;
-    padding: 0 1rem;
-    gap: 1.5rem;
+  @media (max-width: 768px) {
+    font-size: 2rem;
+  }
+}
+
+.sectionDescription {
+  font-size: 1.2rem;
+  color: #666;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+  
+  @media (max-width: 768px) {
+    font-size: 1rem;
+  }
+}
+
+.sectionContent {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+// GOF Token Section
+.gofSection {
+  width: 100%;
+  padding: 6rem 2rem;
+  background: linear-gradient(135deg, #fff9e6 0%, #ffffff 100%);
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, #d4af37 50%, transparent 100%);
+  }
+  
+  @media (max-width: 768px) {
+    padding: 4rem 1rem;
+  }
+}
+
+// NFT Collection Section
+.nftSection {
+  width: 100%;
+  padding: 6rem 2rem;
+  background: linear-gradient(135deg, #f0f9ff 0%, #ffffff 100%);
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent 0%, #4ECDC4 50%, transparent 100%);
+  }
+  
+  .sectionTitle {
+    background: linear-gradient(135deg, #4ECDC4 0%, #44A08D 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  
+  @media (max-width: 768px) {
+    padding: 4rem 1rem;
   }
 }
 
@@ -30,7 +101,16 @@
     background: #0a0a0a;
   }
 
-  .dashboardWrapper {
-    background: linear-gradient(180deg, #0a0a0a 0%, #1a1a2e 100%);
+  .gofSection {
+    background: linear-gradient(135deg, #1a1510 0%, #0a0a0a 100%);
+  }
+  
+  .nftSection {
+    background: linear-gradient(135deg, #0a1520 0%, #0a0a0a 100%);
+  }
+  
+  .sectionDescription {
+    color: #999;
   }
 }
+

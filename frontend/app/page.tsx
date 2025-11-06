@@ -24,11 +24,33 @@ export default function Home() {
       <TrustedBy />
       <FeaturesSection />
       
-      {/* Dashboard Section with Contract Actions */}
-      <section id="dashboard" className={styles.dashboardWrapper}>
+      {/* Dashboard Section */}
+      <section id="dashboard">
         <DashboardSection />
-        <div className={styles.contractsGrid}>
+      </section>
+
+      {/* GOF Token Contract Section */}
+      <section className={styles.gofSection}>
+        <div className={styles.sectionHeader}>
+          <h2 className={styles.sectionTitle}>💰 GoldStable Token (GOF)</h2>
+          <p className={styles.sectionDescription}>
+            Mint and redeem gold-backed GOF tokens using USDC collateral
+          </p>
+        </div>
+        <div className={styles.sectionContent}>
           <ContractActions />
+        </div>
+      </section>
+
+      {/* NFT Collection Section */}
+      <section className={styles.nftSection}>
+        <div className={styles.sectionHeader}>
+          <h2 className={styles.sectionTitle}>🎨 Golden Reserves NFT Collection</h2>
+          <p className={styles.sectionDescription}>
+            Mint exclusive reserve certificates by staking GOF tokens
+          </p>
+        </div>
+        <div className={styles.sectionContent}>
           <NFTCollection />
         </div>
       </section>

@@ -10,6 +10,7 @@ import {
   useWaitForTransactionReceipt,
   useReadContract,
 } from "wagmi";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { BrowserProvider, formatUnits, parseUnits } from "ethers";
 import type { Eip1193Provider } from "ethers";
 import { sepolia } from "wagmi/chains";
@@ -515,7 +516,29 @@ export default function ContractActions() {
   }
 
   return (
-    <div className={styles.card}>
+    <div className={`${styles.card} ${!isConnected ? styles.locked : ''}`}>
+      {!isConnected && (
+        <div className={styles.lockOverlay}>
+          <div className={styles.lockContent}>
+            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+            </svg>
+            <h4>Wallet Connection Required</h4>
+            <p>Please connect your wallet to access the GoldStable Contract</p>
+            <ConnectButton.Custom>
+              {({ openConnectModal }) => (
+                <button className={styles.connectButton} onClick={openConnectModal}>
+                  <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M17 8h-1V6c0-2.76-2.24-5-5-5S6 3.24 6 6v2H5c-1.1 0-2 .9-2 2v8c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-8c0-1.1-.9-2-2-2zM9 6c0-1.66 1.34-3 3-3s3 1.34 3 3v2H9V6z" />
+                  </svg>
+                  Connect Wallet
+                </button>
+              )}
+            </ConnectButton.Custom>
+          </div>
+        </div>
+      )}
       <h3 className={styles.title}>💰 GoldStable Contract</h3>
       <p className={styles.meta}>
         Mint GOF tokens by providing USDC collateral or redeem your GOF for USDC
