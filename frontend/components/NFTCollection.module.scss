@@ -137,30 +137,66 @@
 
 // Section balance
 .balanceSection {
-  background: linear-gradient(135deg, rgba(78, 205, 196, 0.08), rgba(68, 160, 141, 0.08));
-  padding: 1.5rem;
-  border-radius: 16px;
-  margin-bottom: 2rem;
-  border: 1px solid rgba(78, 205, 196, 0.2);
+  background: linear-gradient(145deg, #1e1e1e 0%, #0a0a0a 100%);
+  padding: 1.5rem 2rem;
+  border-radius: 20px;
+  margin-bottom: 3rem;
+  border: 2px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(255, 165, 0, 0.6), transparent);
+  }
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    background: radial-gradient(circle at top right, rgba(255, 165, 0, 0.05), transparent 50%);
+    pointer-events: none;
+  }
 }
 
 .balanceRow {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.75rem 0;
+  padding: 0;
+  position: relative;
+  z-index: 1;
 }
 
 .balanceLabel {
-  color: #666;
-  font-weight: 600;
-  font-size: 0.95rem;
+  color: #999;
+  font-weight: 700;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .balanceValue {
-  font-weight: 700;
-  color: #000;
-  font-size: 1.1rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #FFA500, #FF8C00);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-size: 1.5rem;
+  letter-spacing: 0.5px;
+  text-shadow: 0 0 20px rgba(255, 165, 0, 0.3);
 }
 
 // Grille principale des raretés
@@ -663,12 +699,28 @@
     color: #fff;
   }
 
-  .nftTitle, .collectionTitle, .balanceValue, .nftId {
+  .nftTitle, .collectionTitle, .nftId {
     color: #fff;
   }
   
   .meta {
     color: #999;
+  }
+  
+  .balanceSection {
+    background: linear-gradient(145deg, #1e1e1e 0%, #0a0a0a 100%);
+    border-color: rgba(255, 255, 255, 0.1);
+  }
+  
+  .balanceLabel {
+    color: #999;
+  }
+  
+  .balanceValue {
+    background: linear-gradient(135deg, #FFA500, #FF8C00);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
 
   .rarityCard {
