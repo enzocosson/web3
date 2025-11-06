@@ -6,7 +6,6 @@ import HeroSection from "../components/HeroSection";
 import FeaturesSection from "../components/FeaturesSection";
 import TrustedBy from "../components/TrustedBy";
 import DashboardSection from "../components/DashboardSection";
-import NFTShowcase from "../components/NFTShowcase";
 import FAQ from "../components/FAQ";
 
 const ContractActions = dynamic(() => import('../components/ContractActions'), {
@@ -55,7 +54,6 @@ export default function Home() {
         </div>
       </section>
 
-      <NFTShowcase />
       <FAQ />
     </div>
   );

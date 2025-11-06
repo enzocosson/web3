@@ -33,19 +33,11 @@ export default function NFTShowcase() {
     <section id="nft" className={styles.nft}>
       <div className={styles.container}>
         <div className={styles.header}>
-          <p className={styles.label}>Supply liquidity to leading pools.</p>
           <h2 className={styles.title}>Golden Reserves NFT Collection</h2>
           <p className={styles.subtitle}>
             Diversify your GOF holdings into exclusive NFT certificates. Each tier offers unique benefits and represents
             a stake in the GoldStable ecosystem with on-chain proof of ownership.
           </p>
-          <button className={styles.exploreButton}>
-            <svg width="20" height="20" fill="currentColor" viewBox="0 0 20 20">
-              <path d="M10 0C4.477 0 0 4.477 0 10s4.477 10 10 10 10-4.477 10-10S15.523 0 10 0zm0 18c-4.411 0-8-3.589-8-8s3.589-8 8-8 8 3.589 8 8-3.589 8-8 8z"/>
-              <path d="M10 5v5l4 2-1 1.5-5-3V5h2z"/>
-            </svg>
-            Explore The Pools
-          </button>
         </div>
 
         <div className={styles.grid}>

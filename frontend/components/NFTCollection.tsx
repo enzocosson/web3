@@ -62,41 +62,46 @@ function RarityCard({
 
   return (
     <div className={styles.rarityCard} style={{ borderColor: rarityInfo.color }}>
-      <div className={styles.rarityHeader} style={{ background: `linear-gradient(135deg, ${rarityInfo.color}15, ${rarityInfo.color}05)` }}>
-        <h3 className={styles.rarityName} style={{ color: rarityInfo.color }}>
-          {rarityInfo.name}
+      <div className={styles.rarityHeader}>
+        <h3 className={styles.rarityName} style={{ backgroundColor: rarityInfo.color }}>
+          {rarityInfo.name} Certificate
         </h3>
-        <div className={styles.rarityPrice} style={{ color: rarityInfo.color }}>
-          {rarityInfo.price} GOF
-        </div>
       </div>
 
       <div className={styles.rarityImage}>
         <Image
           src={rarityInfo.template}
           alt={rarityInfo.name}
-          width={300}
-          height={420}
+          width={600}
+          height={840}
+          quality={100}
+          priority
           className={styles.certificatePreview}
         />
       </div>
 
-      <p className={styles.rarityDescription}>
-        {rarityInfo.description}
-      </p>
-
       <div className={styles.rarityBenefits}>
+        <h4 className={styles.rarityTitle}>
+          {rarityInfo.name} Vault<br />Certificate Reserve
+        </h4>
+        <p className={styles.raritySubtitle}>
+          {rarityInfo.description}
+        </p>
+        
+        <div className={styles.stakeInfo}>
+          <span className={styles.stakeLabel}>Stake Required</span>
+          <span className={styles.stakeAmount}>{rarityInfo.price} GOF</span>
+        </div>
+
+        <div className={styles.benefitsTitle}>Benefits:</div>
         <div className={styles.benefitItem}>
-          <span className={styles.benefitLabel}>Gold Backing:</span>
-          <span className={styles.benefitValue}>{rarityInfo.goldBacking}</span>
+          <span className={styles.benefitLabel}>{rarityInfo.goldBacking} Gold Backing</span>
         </div>
         <div className={styles.benefitItem}>
-          <span className={styles.benefitLabel}>Fee Discount:</span>
-          <span className={styles.benefitValue}>{rarityInfo.feeDiscount}</span>
+          <span className={styles.benefitLabel}>{rarityInfo.feeDiscount} Fee Discount</span>
         </div>
         <div className={styles.benefitItem}>
-          <span className={styles.benefitLabel}>Staking Bonus:</span>
-          <span className={styles.benefitValue}>{rarityInfo.stakingBonus}</span>
+          <span className={styles.benefitLabel}>{rarityInfo.stakingBonus} Staking Bonus</span>
         </div>
       </div>
 
@@ -113,18 +118,16 @@ function RarityCard({
             {!ipfsUrl && (
               <button
                 className={styles.actionButton}
-                style={{ background: `linear-gradient(135deg, ${rarityInfo.color}, ${rarityInfo.color}dd)` }}
                 onClick={() => onUpload(rarity)}
                 disabled={isUploading}
               >
-                {isUploading ? "⏳ Uploading..." : "📤 Upload Certificate"}
+                {isUploading ? "⏳ Uploading..." : `Mint ${rarityInfo.name} Vault Certificate`}
               </button>
             )}
 
             {ipfsUrl && needsApproval && (
               <button
                 className={styles.actionButton}
-                style={{ background: `linear-gradient(135deg, ${rarityInfo.color}, ${rarityInfo.color}dd)` }}
                 onClick={() => onApprove(rarity)}
                 disabled={isPending || isConfirming || isApproving}
               >
@@ -135,11 +138,10 @@ function RarityCard({
             {ipfsUrl && !needsApproval && (
               <button
                 className={styles.actionButton}
-                style={{ background: `linear-gradient(135deg, ${rarityInfo.color}, ${rarityInfo.color}dd)` }}
                 onClick={() => onMint(rarity)}
                 disabled={isPending || isConfirming}
               >
-                {isPending || isConfirming ? "⏳ Minting..." : "🎨 Mint NFT"}
+                {isPending || isConfirming ? "⏳ Minting..." : `Mint ${rarityInfo.name} Vault Certificate`}
               </button>
             )}
           </>
@@ -159,7 +161,6 @@ export default function NFTCollection() {
   const { address, isConnected } = useAccount();
   const [uploadingRarity, setUploadingRarity] = useState<Rarity | null>(null);
   const [approvingRarity, setApprovingRarity] = useState<Rarity | null>(null);
-  const [mintingRarity, setMintingRarity] = useState<Rarity | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [ipfsUrls, setIpfsUrls] = useState<Record<number, string>>({});
   const [ownedNFTs, setOwnedNFTs] = useState<NFTData[]>([]);
@@ -256,7 +257,6 @@ export default function NFTCollection() {
       refetchNFTs();
       refetchAllowance();
       setApprovingRarity(null);
-      setMintingRarity(null);
     }
   }, [isConfirmed, refetchNFTs, refetchAllowance]);
 
@@ -267,22 +267,18 @@ export default function NFTCollection() {
     try {
       const rarityInfo = RARITY_INFO[rarity];
       
-      // Fetch the SVG template
-      const svgResponse = await fetch(rarityInfo.template);
-      const svgText = await svgResponse.text();
+      // Fetch the PNG template
+      const imageResponse = await fetch(rarityInfo.template);
+      const imageBlob = await imageResponse.blob();
       
       // Get next token ID for serial number
       const nextTokenId = totalSupplyData ? Number(totalSupplyData) + 1 : 1;
       
-      // Update SVG with serial number
-      const updatedSvg = svgText.replace('#0000', `#${nextTokenId.toString().padStart(4, '0')}`);
-      
-      // Convert SVG to Blob
-      const svgBlob = new Blob([updatedSvg], { type: 'image/svg+xml' });
-      const svgFile = new File([svgBlob], `${rarityInfo.name.toLowerCase().replace(' ', '-')}.svg`, { type: 'image/svg+xml' });
+      // Create file from blob
+      const imageFile = new File([imageBlob], `${rarityInfo.name.toLowerCase().replace(/ /g, '-')}.png`, { type: 'image/png' });
       
       console.log("Uploading image to IPFS...");
-      const imageUpload = await pinata.upload.file(svgFile);
+      const imageUpload = await pinata.upload.file(imageFile);
       const imageUrl = `ipfs://${imageUpload.IpfsHash}`;
       console.log("Image uploaded:", imageUrl);
 
@@ -380,7 +376,6 @@ export default function NFTCollection() {
     }
 
     console.log("Minting NFT with URI:", tokenURI, "Rarity:", rarity);
-    setMintingRarity(rarity);
 
     writeContract(
       {
@@ -401,7 +396,6 @@ export default function NFTCollection() {
         onError: (error) => {
           console.error("❌ Mint error:", error);
           setError(error.message);
-          setMintingRarity(null);
         },
       }
     );
@@ -512,6 +506,19 @@ export default function NFTCollection() {
             {ownedNFTs.map((nft) => (
               <div key={nft.tokenId} className={styles.nftItem}>
                 <div className={styles.nftId}>Certificate #{nft.tokenId}</div>
+                
+                {/* Image du certificat */}
+                <div className={styles.nftImageContainer}>
+                  <Image
+                    src={RARITY_INFO[nft.rarity]?.template || "/nft-templates/bronze-reserve.png"}
+                    alt={`${RARITY_INFO[nft.rarity]?.name} Certificate`}
+                    width={300}
+                    height={420}
+                    quality={100}
+                    className={styles.nftImage}
+                  />
+                </div>
+                
                 <div className={styles.nftRarity} style={{ 
                   background: `${RARITY_INFO[nft.rarity]?.color}15`,
                   color: RARITY_INFO[nft.rarity]?.color 
