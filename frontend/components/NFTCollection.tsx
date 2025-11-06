@@ -231,17 +231,40 @@ export default function NFTCollection() {
     const fetchNFTMetadata = async () => {
       const nfts: NFTData[] = [];
       
+      // Récupérer les métadonnées pour chaque tokenId
       for (const tokenId of userTokenIds as bigint[]) {
         try {
+          // Utiliser fetch avec Web3 pour récupérer nftMetadata
+          const { createPublicClient, http } = await import('viem');
+          const { sepolia } = await import('viem/chains');
+          
+          const client = createPublicClient({
+            chain: sepolia,
+            transport: http(),
+          });
+          
+          const metadata = await client.readContract({
+            address: NFT_CONTRACT_ADDRESS,
+            abi: GOLDEN_RESERVES_NFT_ABI,
+            functionName: 'nftMetadata',
+            args: [tokenId],
+          }) as [number, bigint, bigint]; // [rarity, mintedAt, pricePaid]
+          
           const nftData: NFTData = {
             tokenId: tokenId.toString(),
             tokenURI: "",
-            rarity: Rarity.BRONZE,
+            rarity: metadata[0] as Rarity, // La rareté est le premier élément du tuple
           };
           
           nfts.push(nftData);
         } catch (err) {
           console.error(`Error fetching NFT ${tokenId}:`, err);
+          // En cas d'erreur, utiliser BRONZE par défaut
+          nfts.push({
+            tokenId: tokenId.toString(),
+            tokenURI: "",
+            rarity: Rarity.BRONZE,
+          });
         }
       }
       
